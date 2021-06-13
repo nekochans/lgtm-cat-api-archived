@@ -1,0 +1,20 @@
+.PHONY: deps
+deps:
+	go mod download
+	go mod tidy
+
+.PHONY: build
+build: deps
+	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -trimpath -o bin/lambda main.go
+
+.PHONY: zip
+zip: build
+	zip -j bin/lambda.zip bin/lambda
+
+.PHONY: deploy
+deploy: zip
+	aws lambda update-function-code \
+		--region ap-northeast-1 \
+		--function-name example-api \
+		--zip-file fileb://bin/lambda.zip \
+		--profile lgtm-cat

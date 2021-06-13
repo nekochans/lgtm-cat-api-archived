@@ -17,3 +17,6 @@
 # IDEA setteing
 /.idea/
 lgtm-cat-api.iml
+
+# output go build
+/bin
