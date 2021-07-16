@@ -27,10 +27,12 @@ var chiLambda *chiadapter.ChiLambda
 var uploader *manager.Uploader
 var region string
 var uploadS3Bucket string
+var lgtmImagesCdnDomain string
 
 func init() {
 	region = os.Getenv("REGION")
 	uploadS3Bucket = os.Getenv("UPLOAD_S3_BUCKET_NAME")
+	lgtmImagesCdnDomain = os.Getenv("LGTM_IMAGES_CDN_DOMAIN")
 
 	ctx := context.Background()
 	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
@@ -174,7 +176,7 @@ func CreateLgtmImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := &ResponseBody{ImageUrl: "https://lgtm-images.lgtmeow.com/" + prefix + imageName + ".webp"}
+	response := &ResponseBody{ImageUrl: "https://" + lgtmImagesCdnDomain + "/" + prefix + imageName + ".webp"}
 	responseJson, _ := json.Marshal(response)
 	fmt.Fprint(w, string(responseJson))
 	w.WriteHeader(202)
