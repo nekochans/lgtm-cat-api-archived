@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -101,6 +102,15 @@ func RenderErrorResponse(w http.ResponseWriter, statusCode int, message string) 
 	w.Header().Add("Content-Type", "application/json")
 }
 
+func buildS3Prefix(t time.Time) (string, error) {
+	tokyo, err := time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		return "", err
+	}
+	timeTokyo := t.In(tokyo)
+	return timeTokyo.Format("2006/01/02/15/"), nil
+}
+
 func CreateLgtmImage(w http.ResponseWriter, r *http.Request) {
 	req, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -130,8 +140,14 @@ func CreateLgtmImage(w http.ResponseWriter, r *http.Request) {
 	buffer := new(bytes.Buffer)
 	buffer.Write(decodedImg)
 
-	// TODO YYYY/MM/DD/HH/UUIDV4 の形式に変更する
-	uploadKey := "tmp/" + uid.String() + reqBody.ImageExtension
+	prefix, err := buildS3Prefix(time.Now().UTC())
+	if err != nil {
+		RenderErrorResponse(w, 500, "Failed Time LoadLocation")
+		return
+	}
+
+	imageName := uid.String()
+	uploadKey := prefix + imageName + reqBody.ImageExtension
 	ctx := context.Background()
 	err = uploadToS3(
 		ctx,
@@ -147,8 +163,7 @@ func CreateLgtmImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO ImageURLを生成した値に変更
-	response := &ResponseBody{ImageUrl: "https://lgtm-images.lgtmeow.com/2021/03/16/22/a66dd7da-3105-4806-8c58-6fc66a0a3d04.webp"}
+	response := &ResponseBody{ImageUrl: "https://lgtm-images.lgtmeow.com/" + prefix + imageName + ".webp"}
 	responseJson, _ := json.Marshal(response)
 	fmt.Fprint(w, string(responseJson))
 	w.WriteHeader(202)
