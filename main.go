@@ -48,7 +48,7 @@ type RequestBody struct {
 }
 
 type ResponseBody struct {
-	ImageURL string `json:"imageURL"`
+	ImageUrl string `json:"imageUrl"`
 }
 
 type ResponseErrorBody struct {
@@ -148,7 +148,7 @@ func CreateLgtmImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO ImageURLを生成した値に変更
-	response := &ResponseBody{ImageURL: "https://lgtm-images.lgtmeow.com/2021/03/16/22/a66dd7da-3105-4806-8c58-6fc66a0a3d04.webp"}
+	response := &ResponseBody{ImageUrl: "https://lgtm-images.lgtmeow.com/2021/03/16/22/a66dd7da-3105-4806-8c58-6fc66a0a3d04.webp"}
 	responseJson, _ := json.Marshal(response)
 	fmt.Fprint(w, string(responseJson))
 	w.WriteHeader(202)
