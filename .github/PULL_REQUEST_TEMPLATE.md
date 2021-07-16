@@ -7,9 +7,6 @@
 # Doneの定義
 [required]
 
-# スクリーンショット
-[optional]
-
 # 変更点概要
 [required]
 
