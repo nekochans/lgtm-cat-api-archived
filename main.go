@@ -161,7 +161,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 	if chiLambda == nil {
 		r := chi.NewRouter()
-		r.Post("/lgtm-image", CreateLgtmImage)
+		r.Post("/lgtm-images", CreateLgtmImage)
 		chiLambda = chiadapter.New(r)
 	}
 	return chiLambda.ProxyWithContext(ctx, req)
