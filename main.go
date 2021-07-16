@@ -102,6 +102,13 @@ func RenderErrorResponse(w http.ResponseWriter, statusCode int, message string) 
 	w.Header().Add("Content-Type", "application/json")
 }
 
+func canConvertImageExtension(ext string) bool {
+	if ext != ".png" && ext != ".jpg" && ext != ".jpeg" {
+		return false
+	}
+	return true
+}
+
 func buildS3Prefix(t time.Time) (string, error) {
 	tokyo, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
@@ -118,10 +125,14 @@ func CreateLgtmImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO 画像形式のバリデーション
 	var reqBody RequestBody
 	if err := json.Unmarshal(req, &reqBody); err != nil {
-		RenderErrorResponse(w, 400, "Bad Reques")
+		RenderErrorResponse(w, 400, "Bad Request")
+		return
+	}
+
+	if !canConvertImageExtension(reqBody.ImageExtension) {
+		RenderErrorResponse(w, 422, "Invalid Image Extension")
 		return
 	}
 
