@@ -5,7 +5,7 @@ deps:
 
 .PHONY: build
 build: deps
-	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -trimpath -o bin/lambda main.go
+	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -trimpath -o bin/lambda
 
 .PHONY: zip
 zip: build
