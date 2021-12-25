@@ -1,0 +1,7 @@
+version: 1
+packages:
+  - name: "db"
+    path: "./db/sqlc"
+    engine: "mysql"
+    schema: "./db/schema.sql"
+    queries: "./db/query.sql"
