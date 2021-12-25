@@ -10,5 +10,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.10.0
 	github.com/awslabs/aws-lambda-go-api-proxy v0.10.0
 	github.com/go-chi/chi v4.1.2+incompatible
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.2.0
 )
