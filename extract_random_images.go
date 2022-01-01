@@ -41,7 +41,7 @@ func pickupRandomIdsNoDuplicates(ids []int32, listCount int) []int32 {
 
 	var randomIds []int32
 	for i := 1; i <= listCount; {
-		n := rand.Int31n(int32(recordCount - 1))
+		n := rand.Intn(recordCount - 1)
 		if contains(randomIds, ids[n]) {
 			continue
 		}
@@ -60,6 +60,8 @@ func ExtractRandomImages(w http.ResponseWriter, r *http.Request) {
 		RenderErrorResponse(w, 500, "Failed count LGTM images records")
 	}
 
+	fmt.Println("ids", ids)
+
 	if len(ids) < fetchLgtmImageCount {
 		log.Println("The total record count is less than fetchLgtmImageCount")
 		RenderErrorResponse(w, 500, "Failed fetch LGTM images")
@@ -67,6 +69,9 @@ func ExtractRandomImages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var randomIds = pickupRandomIdsNoDuplicates(ids, fetchLgtmImageCount)
+
+	fmt.Println("randomIds", randomIds)
+
 	var listLgtmImagesParams = db.ListLgtmImagesParams{
 		ID:   randomIds[0],
 		ID_2: randomIds[1],
