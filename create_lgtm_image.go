@@ -2,18 +2,15 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"io/ioutil"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/nekochans/lgtm-cat-api/infrastructure"
 )
 
 type RequestBody struct {
@@ -27,30 +24,6 @@ type ResponseBody struct {
 
 type ResponseErrorBody struct {
 	Message string `json:"message"`
-}
-
-func uploadToS3(
-	ctx context.Context,
-	uploader *manager.Uploader,
-	bucket string,
-	body *bytes.Buffer,
-	contentType string,
-	key string,
-) error {
-	input := &s3.PutObjectInput{
-		Bucket:      aws.String(bucket),
-		Body:        body,
-		ContentType: aws.String(contentType),
-		Key:         aws.String(key),
-	}
-
-	_, err := uploader.Upload(ctx, input)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func decideS3ContentType(ext string) string {
@@ -132,10 +105,9 @@ func CreateLgtmImage(w http.ResponseWriter, r *http.Request) {
 
 	imageName := uid.String()
 	uploadKey := prefix + imageName + reqBody.ImageExtension
-	ctx := context.Background()
-	err = uploadToS3(
-		ctx,
-		uploader,
+
+	repo := &infrastructure.S3Repository{Uploader: uploader}
+	err = repo.Upload(
 		uploadS3Bucket,
 		buffer,
 		decideS3ContentType(reqBody.ImageExtension),
