@@ -69,7 +69,7 @@ func (u *CreateLgtmImageUseCase) CreateLgtmImage(req []byte) (*domain.UploadedLg
 
 	uid, err := uuid.NewRandom()
 	if err != nil {
-		return nil, domain.ErrGenerateUUID
+		return nil, domain.ErrGenerateUuid
 	}
 
 	buffer := new(bytes.Buffer)

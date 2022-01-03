@@ -77,7 +77,7 @@ func ExtractRandomImages(w http.ResponseWriter, r *http.Request) {
 	var lgtmImages []LgtmImage
 	for _, row := range rows {
 		lgtmImage := LgtmImage{
-			Id:       strconv.Itoa(int(row.ID)),
+			Id:       strconv.Itoa(int(row.Id)),
 			ImageUrl: "https://" + lgtmImagesCdnDomain + "/" + row.Path + "/" + row.Filename + ".webp",
 		}
 		lgtmImages = append(lgtmImages, lgtmImage)

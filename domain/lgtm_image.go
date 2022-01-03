@@ -1,7 +1,7 @@
 package domain
 
 type LgtmImage struct {
-	ID       int32
+	Id       int32
 	Path     string
 	Filename string
 }

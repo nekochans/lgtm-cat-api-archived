@@ -44,7 +44,7 @@ func (r *LgtmImageRepository) FindByIds(ids []int32) ([]domain.LgtmImage, error)
 
 	var lgtmImage []domain.LgtmImage
 	for _, v := range rows {
-		lgtmImage = append(lgtmImage, domain.LgtmImage{ID: v.ID, Path: v.Path, Filename: v.Filename})
+		lgtmImage = append(lgtmImage, domain.LgtmImage{Id: v.ID, Path: v.Path, Filename: v.Filename})
 	}
 
 	return lgtmImage, nil
