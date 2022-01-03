@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
+	"log"
+	"os"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -12,8 +15,9 @@ import (
 	"github.com/go-chi/chi"
 	_ "github.com/go-sql-driver/mysql"
 	db "github.com/nekochans/lgtm-cat-api/db/sqlc"
-	"log"
-	"os"
+	"github.com/nekochans/lgtm-cat-api/handler"
+	"github.com/nekochans/lgtm-cat-api/infrastructure"
+	"github.com/nekochans/lgtm-cat-api/usecase"
 )
 
 var chiLambda *chiadapter.ChiLambda
@@ -53,9 +57,15 @@ func init() {
 
 func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
+	s3Repository := &infrastructure.S3Repository{Uploader: uploader}
+	createLgtmImageUseCase := &usecase.CreateLgtmImageUseCase{Repository: s3Repository, UploadS3Bucket: uploadS3Bucket, CdnDomain: lgtmImagesCdnDomain}
+	createLgtmImageHandler := &handler.CreateLgtmImageHandler{
+		CreateLgtmImageUseCase: createLgtmImageUseCase,
+	}
+
 	if chiLambda == nil {
 		r := chi.NewRouter()
-		r.Post("/lgtm-images", CreateLgtmImage)
+		r.Post("/lgtm-images", createLgtmImageHandler.Create)
 		r.Get("/lgtm-images", ExtractRandomImages)
 		chiLambda = chiadapter.New(r)
 	}

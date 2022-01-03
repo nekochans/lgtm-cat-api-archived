@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/nekochans/lgtm-cat-api/handler"
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
 )
 
@@ -56,12 +57,12 @@ func ExtractRandomImages(w http.ResponseWriter, r *http.Request) {
 
 	ids, err := repo.FindAllIds()
 	if err != nil {
-		RenderErrorResponse(w, 500, "Failed count LGTM images records")
+		handler.RenderErrorResponse(w, 500, "Failed count LGTM images records")
 	}
 
 	if len(ids) < fetchLgtmImageCount {
 		log.Println("The total record count is less than fetchLgtmImageCount")
-		RenderErrorResponse(w, 500, "Failed fetch LGTM images")
+		handler.RenderErrorResponse(w, 500, "Failed fetch LGTM images")
 		return
 	}
 
@@ -69,7 +70,7 @@ func ExtractRandomImages(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := repo.FindByIds(randomIds)
 	if err != nil {
-		RenderErrorResponse(w, 500, "Failed fetch LGTM images")
+		handler.RenderErrorResponse(w, 500, "Failed fetch LGTM images")
 		return
 	}
 
