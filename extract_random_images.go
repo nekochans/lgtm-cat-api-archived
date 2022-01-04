@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,7 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	db "github.com/nekochans/lgtm-cat-api/db/sqlc"
+	"github.com/nekochans/lgtm-cat-api/handler"
+	"github.com/nekochans/lgtm-cat-api/infrastructure"
 )
 
 const fetchLgtmImageCount = 9
@@ -53,47 +53,31 @@ func pickupRandomIdsNoDuplicates(ids []int32, listCount int) []int32 {
 }
 
 func ExtractRandomImages(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
+	repo := &infrastructure.LgtmImageRepository{Db: q}
 
-	ids, err := q.ListLgtmImageIds(ctx)
+	ids, err := repo.FindAllIds()
 	if err != nil {
-		RenderErrorResponse(w, 500, "Failed count LGTM images records")
+		handler.RenderErrorResponse(w, 500, "Failed count LGTM images records")
 	}
-
-	fmt.Println("ids", ids)
 
 	if len(ids) < fetchLgtmImageCount {
 		log.Println("The total record count is less than fetchLgtmImageCount")
-		RenderErrorResponse(w, 500, "Failed fetch LGTM images")
+		handler.RenderErrorResponse(w, 500, "Failed fetch LGTM images")
 		return
 	}
 
 	var randomIds = pickupRandomIdsNoDuplicates(ids, fetchLgtmImageCount)
 
-	fmt.Println("randomIds", randomIds)
-
-	var listLgtmImagesParams = db.ListLgtmImagesParams{
-		ID:   randomIds[0],
-		ID_2: randomIds[1],
-		ID_3: randomIds[2],
-		ID_4: randomIds[3],
-		ID_5: randomIds[4],
-		ID_6: randomIds[5],
-		ID_7: randomIds[6],
-		ID_8: randomIds[7],
-		ID_9: randomIds[8],
-	}
-
-	rows, err := q.ListLgtmImages(ctx, listLgtmImagesParams)
+	rows, err := repo.FindByIds(randomIds)
 	if err != nil {
-		RenderErrorResponse(w, 500, "Failed fetch LGTM images")
+		handler.RenderErrorResponse(w, 500, "Failed fetch LGTM images")
 		return
 	}
 
 	var lgtmImages []LgtmImage
 	for _, row := range rows {
 		lgtmImage := LgtmImage{
-			Id:       strconv.Itoa(int(row.ID)),
+			Id:       strconv.Itoa(int(row.Id)),
 			ImageUrl: "https://" + lgtmImagesCdnDomain + "/" + row.Path + "/" + row.Filename + ".webp",
 		}
 		lgtmImages = append(lgtmImages, lgtmImage)
