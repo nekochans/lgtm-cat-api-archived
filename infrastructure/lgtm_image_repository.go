@@ -22,7 +22,7 @@ func (r *LgtmImageRepository) FindAllIds() ([]int32, error) {
 	return ids, nil
 }
 
-func (r *LgtmImageRepository) FindByIds(ids []int32) ([]domain.LgtmImage, error) {
+func (r *LgtmImageRepository) FindByIds(ids []int32) ([]domain.LgtmImageObject, error) {
 	ctx := context.Background()
 
 	var listLgtmImagesParams = db.ListLgtmImagesParams{
@@ -42,9 +42,9 @@ func (r *LgtmImageRepository) FindByIds(ids []int32) ([]domain.LgtmImage, error)
 		return nil, err
 	}
 
-	var lgtmImage []domain.LgtmImage
+	var lgtmImage []domain.LgtmImageObject
 	for _, v := range rows {
-		lgtmImage = append(lgtmImage, domain.LgtmImage{Id: v.ID, Path: v.Path, Filename: v.Filename})
+		lgtmImage = append(lgtmImage, domain.LgtmImageObject{Id: v.ID, Path: v.Path, Filename: v.Filename})
 	}
 
 	return lgtmImage, nil
