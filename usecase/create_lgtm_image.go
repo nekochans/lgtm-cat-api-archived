@@ -7,11 +7,10 @@ import (
 	"time"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
-	"github.com/nekochans/lgtm-cat-api/infrastructure"
 )
 
 type CreateLgtmImageUseCase struct {
-	Repository *infrastructure.S3Repository
+	Repository domain.S3Repository
 	CdnDomain  string
 }
 

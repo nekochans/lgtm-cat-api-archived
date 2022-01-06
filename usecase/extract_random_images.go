@@ -1,15 +1,15 @@
 package usecase
 
 import (
-	"github.com/nekochans/lgtm-cat-api/domain"
-	"github.com/nekochans/lgtm-cat-api/infrastructure"
 	"log"
 	"math/rand"
 	"time"
+
+	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
 type ExtractRandomImagesUseCase struct {
-	Repository *infrastructure.LgtmImageRepository
+	Repository domain.LgtmImageRepository
 	CdnDomain  string
 }
 
