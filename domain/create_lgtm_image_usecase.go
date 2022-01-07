@@ -26,6 +26,12 @@ type UploadS3param struct {
 	Key            string
 }
 
+type LgtmImageObject struct {
+	Id       int32
+	Path     string
+	Filename string
+}
+
 func CreateUploadedLgtmImage(domain, prefix, imageName string) *UploadedLgtmImage {
 	return &UploadedLgtmImage{Url: "https://" + domain + "/" + prefix + imageName + ".webp"}
 }
