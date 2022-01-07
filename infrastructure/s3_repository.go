@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -28,7 +29,7 @@ func decideS3ContentType(ext string) string {
 }
 
 func (r *S3Repository) Upload(param *domain.UploadS3param) error {
-	ctx := context.Background()
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	input := &s3.PutObjectInput{
 		Bucket:      aws.String(r.S3Bucket),

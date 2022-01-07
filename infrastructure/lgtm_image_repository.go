@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"time"
 
 	db "github.com/nekochans/lgtm-cat-api/db/sqlc"
 	"github.com/nekochans/lgtm-cat-api/domain"
@@ -12,7 +13,7 @@ type LgtmImageRepository struct {
 }
 
 func (r *LgtmImageRepository) FindAllIds() ([]int32, error) {
-	ctx := context.Background()
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	ids, err := r.Db.ListLgtmImageIds(ctx)
 	if err != nil {
@@ -23,7 +24,7 @@ func (r *LgtmImageRepository) FindAllIds() ([]int32, error) {
 }
 
 func (r *LgtmImageRepository) FindByIds(ids []int32) ([]domain.LgtmImageObject, error) {
-	ctx := context.Background()
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	var listLgtmImagesParams = db.ListLgtmImagesParams{
 		ID:   ids[0],
