@@ -13,7 +13,8 @@ type LgtmImageRepository struct {
 }
 
 func (r *LgtmImageRepository) FindAllIds() ([]int32, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	ids, err := r.Db.ListLgtmImageIds(ctx)
 	if err != nil {
@@ -24,7 +25,8 @@ func (r *LgtmImageRepository) FindAllIds() ([]int32, error) {
 }
 
 func (r *LgtmImageRepository) FindByIds(ids []int32) ([]domain.LgtmImageObject, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	var listLgtmImagesParams = db.ListLgtmImagesParams{
 		ID:   ids[0],
