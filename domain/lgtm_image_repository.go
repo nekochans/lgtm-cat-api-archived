@@ -1,6 +1,8 @@
 package domain
 
+import "context"
+
 type LgtmImageRepository interface {
-	FindAllIds() ([]int32, error)
-	FindByIds(ids []int32) ([]LgtmImageObject, error)
+	FindAllIds(context.Context) ([]int32, error)
+	FindByIds(context.Context, []int32) ([]LgtmImageObject, error)
 }
