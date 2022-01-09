@@ -20,7 +20,7 @@ type ExtractRandomImagesResponse struct {
 
 func (h *ExtractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
 
-	lgtmImages, err := h.ExtractRandomImagesUseCase.ExtractRandomImages()
+	lgtmImages, err := h.ExtractRandomImagesUseCase.ExtractRandomImages(r.Context())
 	if err != nil {
 		switch errors.Cause(err) {
 		default:

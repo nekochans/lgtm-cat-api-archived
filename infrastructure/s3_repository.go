@@ -28,8 +28,8 @@ func decideS3ContentType(ext string) string {
 	return contentType
 }
 
-func (r *S3Repository) Upload(param *domain.UploadS3param) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+func (r *S3Repository) Upload(c context.Context, param *domain.UploadS3param) error {
+	ctx, cancel := context.WithTimeout(c, 10*time.Second)
 	defer cancel()
 
 	input := &s3.PutObjectInput{

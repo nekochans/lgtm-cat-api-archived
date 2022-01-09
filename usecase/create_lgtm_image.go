@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"time"
@@ -19,7 +20,7 @@ type requestBody struct {
 	ImageExtension string `json:"imageExtension"`
 }
 
-func (u *CreateLgtmImageUseCase) CreateLgtmImage(req []byte) (*domain.UploadedLgtmImage, error) {
+func (u *CreateLgtmImageUseCase) CreateLgtmImage(ctx context.Context, req []byte) (*domain.UploadedLgtmImage, error) {
 
 	var reqBody requestBody
 	if err := json.Unmarshal(req, &reqBody); err != nil {
@@ -55,7 +56,7 @@ func (u *CreateLgtmImageUseCase) CreateLgtmImage(req []byte) (*domain.UploadedLg
 		reqBody.ImageExtension,
 	)
 
-	err = u.Repository.Upload(uploadS3param)
+	err = u.Repository.Upload(ctx, uploadS3param)
 	if err != nil {
 		return nil, domain.ErrUploadToS3
 	}

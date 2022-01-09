@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"log"
 	"math/rand"
 	"time"
@@ -40,8 +41,8 @@ func pickupRandomIdsNoDuplicates(ids []int32, listCount int) []int32 {
 	return randomIds
 }
 
-func (u *ExtractRandomImagesUseCase) ExtractRandomImages() ([]domain.LgtmImage, error) {
-	ids, err := u.Repository.FindAllIds()
+func (u *ExtractRandomImagesUseCase) ExtractRandomImages(ctx context.Context) ([]domain.LgtmImage, error) {
+	ids, err := u.Repository.FindAllIds(ctx)
 	if err != nil {
 		return nil, domain.ErrCountRecords
 	}
@@ -52,7 +53,7 @@ func (u *ExtractRandomImagesUseCase) ExtractRandomImages() ([]domain.LgtmImage, 
 
 	var randomIds = pickupRandomIdsNoDuplicates(ids, domain.FetchLgtmImageCount)
 
-	rows, err := u.Repository.FindByIds(randomIds)
+	rows, err := u.Repository.FindByIds(ctx, randomIds)
 	if err != nil {
 		return nil, domain.ErrFetchImages
 	}

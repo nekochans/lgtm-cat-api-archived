@@ -27,7 +27,7 @@ func (h *CreateLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	image, err := h.CreateLgtmImageUseCase.CreateLgtmImage(req)
+	image, err := h.CreateLgtmImageUseCase.CreateLgtmImage(r.Context(), req)
 	if err != nil {
 		switch errors.Cause(err) {
 		case domain.ErrBadRequest:
