@@ -8,15 +8,15 @@ import (
 	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
-type LgtmImageRepository struct {
+type lgtmImageRepository struct {
 	db *db.Queries
 }
 
-func NewLgtmImageRepository(db *db.Queries) *LgtmImageRepository {
-	return &LgtmImageRepository{db: db}
+func NewLgtmImageRepository(db *db.Queries) *lgtmImageRepository {
+	return &lgtmImageRepository{db: db}
 }
 
-func (r *LgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
+func (r *lgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
 	defer cancel()
 
@@ -28,7 +28,7 @@ func (r *LgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
 	return ids, nil
 }
 
-func (r *LgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]domain.LgtmImageObject, error) {
+func (r *lgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]domain.LgtmImageObject, error) {
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
 	defer cancel()
 

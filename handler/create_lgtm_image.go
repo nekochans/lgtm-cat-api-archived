@@ -11,12 +11,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-type CreateLgtmImageHandler struct {
+type createLgtmImageHandler struct {
 	createLgtmImageUseCase *usecase.CreateLgtmImageUseCase
 }
 
-func NewCreateLgtmImageHandler(c *usecase.CreateLgtmImageUseCase) *CreateLgtmImageHandler {
-	return &CreateLgtmImageHandler{
+func NewCreateLgtmImageHandler(c *usecase.CreateLgtmImageUseCase) *createLgtmImageHandler {
+	return &createLgtmImageHandler{
 		createLgtmImageUseCase: c,
 	}
 }
@@ -25,7 +25,7 @@ type CreateLgtmImageResponse struct {
 	ImageUrl string `json:"imageUrl"`
 }
 
-func (h *CreateLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	req, err := ioutil.ReadAll(r.Body)
 	if err != nil {

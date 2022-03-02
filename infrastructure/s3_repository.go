@@ -10,13 +10,13 @@ import (
 	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
-type S3Repository struct {
+type s3Repository struct {
 	uploader *manager.Uploader
 	s3Bucket string
 }
 
-func NewS3Repository(u *manager.Uploader, s string) *S3Repository {
-	return &S3Repository{uploader: u, s3Bucket: s}
+func NewS3Repository(u *manager.Uploader, s string) *s3Repository {
+	return &s3Repository{uploader: u, s3Bucket: s}
 }
 
 func decideS3ContentType(ext string) string {
@@ -32,7 +32,7 @@ func decideS3ContentType(ext string) string {
 	return contentType
 }
 
-func (r *S3Repository) Upload(c context.Context, param *domain.UploadS3param) error {
+func (r *s3Repository) Upload(c context.Context, param *domain.UploadS3param) error {
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
 	defer cancel()
 
