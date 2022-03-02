@@ -11,8 +11,15 @@ import (
 )
 
 type CreateLgtmImageUseCase struct {
-	Repository domain.S3Repository
-	CdnDomain  string
+	repository domain.S3Repository
+	cdnDomain  string
+}
+
+func NewCreateLgtmImageUseCase(r domain.S3Repository, c string) *CreateLgtmImageUseCase {
+	return &CreateLgtmImageUseCase{
+		repository: r,
+		cdnDomain:  c,
+	}
 }
 
 type requestBody struct {
@@ -56,10 +63,10 @@ func (u *CreateLgtmImageUseCase) CreateLgtmImage(ctx context.Context, req []byte
 		reqBody.ImageExtension,
 	)
 
-	err = u.Repository.Upload(ctx, uploadS3param)
+	err = u.repository.Upload(ctx, uploadS3param)
 	if err != nil {
 		return nil, domain.ErrUploadToS3
 	}
 
-	return domain.CreateUploadedLgtmImage(u.CdnDomain, prefix, imageName), nil
+	return domain.CreateUploadedLgtmImage(u.cdnDomain, prefix, imageName), nil
 }

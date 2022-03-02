@@ -12,7 +12,13 @@ import (
 )
 
 type CreateLgtmImageHandler struct {
-	CreateLgtmImageUseCase *usecase.CreateLgtmImageUseCase
+	createLgtmImageUseCase *usecase.CreateLgtmImageUseCase
+}
+
+func NewCreateLgtmImageHandler(c *usecase.CreateLgtmImageUseCase) *CreateLgtmImageHandler {
+	return &CreateLgtmImageHandler{
+		createLgtmImageUseCase: c,
+	}
 }
 
 type CreateLgtmImageResponse struct {
@@ -27,7 +33,7 @@ func (h *CreateLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	image, err := h.CreateLgtmImageUseCase.CreateLgtmImage(r.Context(), req)
+	image, err := h.createLgtmImageUseCase.CreateLgtmImage(r.Context(), req)
 	if err != nil {
 		switch errors.Cause(err) {
 		case domain.ErrBadRequest:

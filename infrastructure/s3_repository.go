@@ -11,8 +11,12 @@ import (
 )
 
 type S3Repository struct {
-	Uploader *manager.Uploader
-	S3Bucket string
+	uploader *manager.Uploader
+	s3Bucket string
+}
+
+func NewS3Repository(u *manager.Uploader, s string) *S3Repository {
+	return &S3Repository{uploader: u, s3Bucket: s}
 }
 
 func decideS3ContentType(ext string) string {
@@ -33,13 +37,13 @@ func (r *S3Repository) Upload(c context.Context, param *domain.UploadS3param) er
 	defer cancel()
 
 	input := &s3.PutObjectInput{
-		Bucket:      aws.String(r.S3Bucket),
+		Bucket:      aws.String(r.s3Bucket),
 		Body:        param.Body,
 		ContentType: aws.String(decideS3ContentType(param.ImageExtension)),
 		Key:         aws.String(param.Key),
 	}
 
-	_, err := r.Uploader.Upload(ctx, input)
+	_, err := r.uploader.Upload(ctx, input)
 	if err != nil {
 		return err
 	}

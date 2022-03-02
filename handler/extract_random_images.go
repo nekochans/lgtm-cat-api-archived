@@ -11,7 +11,13 @@ import (
 )
 
 type ExtractRandomImagesHandler struct {
-	ExtractRandomImagesUseCase *usecase.ExtractRandomImagesUseCase
+	extractRandomImagesUseCase *usecase.ExtractRandomImagesUseCase
+}
+
+func NewExtractRandomImagesHandler(c *usecase.ExtractRandomImagesUseCase) *ExtractRandomImagesHandler {
+	return &ExtractRandomImagesHandler{
+		extractRandomImagesUseCase: c,
+	}
 }
 
 type ExtractRandomImagesResponse struct {
@@ -20,7 +26,7 @@ type ExtractRandomImagesResponse struct {
 
 func (h *ExtractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
 
-	lgtmImages, err := h.ExtractRandomImagesUseCase.ExtractRandomImages(r.Context())
+	lgtmImages, err := h.extractRandomImagesUseCase.ExtractRandomImages(r.Context())
 	if err != nil {
 		switch errors.Cause(err) {
 		default:

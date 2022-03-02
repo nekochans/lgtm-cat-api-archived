@@ -9,14 +9,18 @@ import (
 )
 
 type LgtmImageRepository struct {
-	Db *db.Queries
+	db *db.Queries
+}
+
+func NewLgtmImageRepository(db *db.Queries) *LgtmImageRepository {
+	return &LgtmImageRepository{db: db}
 }
 
 func (r *LgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
 	defer cancel()
 
-	ids, err := r.Db.ListLgtmImageIds(ctx)
+	ids, err := r.db.ListLgtmImageIds(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +44,7 @@ func (r *LgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]domai
 		ID_9: ids[8],
 	}
 
-	rows, err := r.Db.ListLgtmImages(ctx, listLgtmImagesParams)
+	rows, err := r.db.ListLgtmImages(ctx, listLgtmImagesParams)
 	if err != nil {
 		return nil, err
 	}

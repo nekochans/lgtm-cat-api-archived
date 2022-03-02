@@ -57,17 +57,13 @@ func init() {
 
 func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
-	s3Repository := &infrastructure.S3Repository{Uploader: uploader, S3Bucket: uploadS3Bucket}
-	createLgtmImageUseCase := &usecase.CreateLgtmImageUseCase{Repository: s3Repository, CdnDomain: lgtmImagesCdnDomain}
-	createLgtmImageHandler := &handler.CreateLgtmImageHandler{
-		CreateLgtmImageUseCase: createLgtmImageUseCase,
-	}
+	s3Repository := infrastructure.NewS3Repository(uploader, uploadS3Bucket)
+	createLgtmImageUseCase := usecase.NewCreateLgtmImageUseCase(s3Repository, lgtmImagesCdnDomain)
+	createLgtmImageHandler := handler.NewCreateLgtmImageHandler(createLgtmImageUseCase)
 
-	lgtmImageRepository := &infrastructure.LgtmImageRepository{Db: q}
-	extractRandomImagesUseCase := &usecase.ExtractRandomImagesUseCase{Repository: lgtmImageRepository, CdnDomain: lgtmImagesCdnDomain}
-	extractRandomImagesHandler := &handler.ExtractRandomImagesHandler{
-		ExtractRandomImagesUseCase: extractRandomImagesUseCase,
-	}
+	lgtmImageRepository := infrastructure.NewLgtmImageRepository(q)
+	extractRandomImagesUseCase := usecase.NewExtractRandomImagesUseCase(lgtmImageRepository, lgtmImagesCdnDomain)
+	extractRandomImagesHandler := handler.NewExtractRandomImagesHandler(extractRandomImagesUseCase)
 
 	if chiLambda == nil {
 		r := chi.NewRouter()
