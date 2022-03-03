@@ -10,17 +10,23 @@ import (
 	"github.com/pkg/errors"
 )
 
-type ExtractRandomImagesHandler struct {
-	ExtractRandomImagesUseCase *usecase.ExtractRandomImagesUseCase
+type extractRandomImagesHandler struct {
+	extractRandomImagesUseCase *usecase.ExtractRandomImagesUseCase
+}
+
+func NewExtractRandomImagesHandler(c *usecase.ExtractRandomImagesUseCase) *extractRandomImagesHandler {
+	return &extractRandomImagesHandler{
+		extractRandomImagesUseCase: c,
+	}
 }
 
 type ExtractRandomImagesResponse struct {
 	LgtmImages []domain.LgtmImage `json:"lgtmImages"`
 }
 
-func (h *ExtractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
+func (h *extractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
 
-	lgtmImages, err := h.ExtractRandomImagesUseCase.ExtractRandomImages(r.Context())
+	lgtmImages, err := h.extractRandomImagesUseCase.ExtractRandomImages(r.Context())
 	if err != nil {
 		switch errors.Cause(err) {
 		default:

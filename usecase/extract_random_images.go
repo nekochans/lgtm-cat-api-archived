@@ -10,8 +10,15 @@ import (
 )
 
 type ExtractRandomImagesUseCase struct {
-	Repository domain.LgtmImageRepository
-	CdnDomain  string
+	repository domain.LgtmImageRepository
+	cdnDomain  string
+}
+
+func NewExtractRandomImagesUseCase(r domain.LgtmImageRepository, c string) *ExtractRandomImagesUseCase {
+	return &ExtractRandomImagesUseCase{
+		repository: r,
+		cdnDomain:  c,
+	}
 }
 
 func contains(elems []int32, v int32) bool {
@@ -42,7 +49,7 @@ func pickupRandomIdsNoDuplicates(ids []int32, listCount int) []int32 {
 }
 
 func (u *ExtractRandomImagesUseCase) ExtractRandomImages(ctx context.Context) ([]domain.LgtmImage, error) {
-	ids, err := u.Repository.FindAllIds(ctx)
+	ids, err := u.repository.FindAllIds(ctx)
 	if err != nil {
 		return nil, domain.ErrCountRecords
 	}
@@ -53,14 +60,14 @@ func (u *ExtractRandomImagesUseCase) ExtractRandomImages(ctx context.Context) ([
 
 	var randomIds = pickupRandomIdsNoDuplicates(ids, domain.FetchLgtmImageCount)
 
-	rows, err := u.Repository.FindByIds(ctx, randomIds)
+	rows, err := u.repository.FindByIds(ctx, randomIds)
 	if err != nil {
 		return nil, domain.ErrFetchImages
 	}
 
 	var lgtmImages []domain.LgtmImage
 	for _, row := range rows {
-		lgtmImage := domain.CreateLgtmImage(row.Id, u.CdnDomain, row.Path, row.Filename)
+		lgtmImage := domain.CreateLgtmImage(row.Id, u.cdnDomain, row.Path, row.Filename)
 		lgtmImages = append(lgtmImages, *lgtmImage)
 	}
 
