@@ -33,11 +33,14 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	image, err := h.createLgtmImageUseCase.CreateLgtmImage(r.Context(), req)
+	var reqBody usecase.RequestBody
+	if err := json.Unmarshal(req, &reqBody); err != nil {
+		RenderErrorResponse(w, 400, err.Error())
+	}
+
+	image, err := h.createLgtmImageUseCase.CreateLgtmImage(r.Context(), reqBody)
 	if err != nil {
 		switch errors.Cause(err) {
-		case domain.ErrBadRequest:
-			RenderErrorResponse(w, 400, err.Error())
 		case domain.ErrInvalidImageExtension:
 			fmt.Println(err)
 
