@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"time"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
@@ -22,17 +21,12 @@ func NewCreateLgtmImageUseCase(r domain.S3Repository, c string) *CreateLgtmImage
 	}
 }
 
-type requestBody struct {
+type RequestBody struct {
 	Image          string `json:"image"`
 	ImageExtension string `json:"imageExtension"`
 }
 
-func (u *CreateLgtmImageUseCase) CreateLgtmImage(ctx context.Context, req []byte) (*domain.UploadedLgtmImage, error) {
-
-	var reqBody requestBody
-	if err := json.Unmarshal(req, &reqBody); err != nil {
-		return nil, domain.ErrBadRequest
-	}
+func (u *CreateLgtmImageUseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*domain.UploadedLgtmImage, error) {
 
 	if !domain.CanConvertImageExtension(reqBody.ImageExtension) {
 		return nil, domain.ErrInvalidImageExtension
