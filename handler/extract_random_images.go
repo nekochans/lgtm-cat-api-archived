@@ -6,17 +6,17 @@ import (
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
-	"github.com/nekochans/lgtm-cat-api/usecase"
+	"github.com/nekochans/lgtm-cat-api/usecase/extractrandomimages"
 	"github.com/pkg/errors"
 )
 
 type extractRandomImagesHandler struct {
-	extractRandomImagesUseCase *usecase.ExtractRandomImagesUseCase
+	useCase *extractrandomimages.UseCase
 }
 
-func NewExtractRandomImagesHandler(c *usecase.ExtractRandomImagesUseCase) *extractRandomImagesHandler {
+func NewExtractRandomImagesHandler(c *extractrandomimages.UseCase) *extractRandomImagesHandler {
 	return &extractRandomImagesHandler{
-		extractRandomImagesUseCase: c,
+		useCase: c,
 	}
 }
 
@@ -26,7 +26,7 @@ type ExtractRandomImagesResponse struct {
 
 func (h *extractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
 
-	lgtmImages, err := h.extractRandomImagesUseCase.ExtractRandomImages(r.Context())
+	lgtmImages, err := h.useCase.ExtractRandomImages(r.Context())
 	if err != nil {
 		switch errors.Cause(err) {
 		default:

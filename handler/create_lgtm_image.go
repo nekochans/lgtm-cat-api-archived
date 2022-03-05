@@ -7,17 +7,17 @@ import (
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
-	"github.com/nekochans/lgtm-cat-api/usecase"
+	"github.com/nekochans/lgtm-cat-api/usecase/createltgmimage"
 	"github.com/pkg/errors"
 )
 
 type createLgtmImageHandler struct {
-	createLgtmImageUseCase *usecase.CreateLgtmImageUseCase
+	useCase *createltgmimage.UseCase
 }
 
-func NewCreateLgtmImageHandler(c *usecase.CreateLgtmImageUseCase) *createLgtmImageHandler {
+func NewCreateLgtmImageHandler(c *createltgmimage.UseCase) *createLgtmImageHandler {
 	return &createLgtmImageHandler{
-		createLgtmImageUseCase: c,
+		useCase: c,
 	}
 }
 
@@ -33,12 +33,12 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var reqBody usecase.RequestBody
+	var reqBody createltgmimage.RequestBody
 	if err := json.Unmarshal(req, &reqBody); err != nil {
 		RenderErrorResponse(w, 400, err.Error())
 	}
 
-	image, err := h.createLgtmImageUseCase.CreateLgtmImage(r.Context(), reqBody)
+	image, err := h.useCase.CreateLgtmImage(r.Context(), reqBody)
 	if err != nil {
 		switch errors.Cause(err) {
 		case domain.ErrInvalidImageExtension:

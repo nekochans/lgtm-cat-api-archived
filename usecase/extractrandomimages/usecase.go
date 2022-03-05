@@ -1,4 +1,4 @@
-package usecase
+package extractrandomimages
 
 import (
 	"context"
@@ -9,13 +9,13 @@ import (
 	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
-type ExtractRandomImagesUseCase struct {
+type UseCase struct {
 	repository domain.LgtmImageRepository
 	cdnDomain  string
 }
 
-func NewExtractRandomImagesUseCase(r domain.LgtmImageRepository, c string) *ExtractRandomImagesUseCase {
-	return &ExtractRandomImagesUseCase{
+func NewUseCase(r domain.LgtmImageRepository, c string) *UseCase {
+	return &UseCase{
 		repository: r,
 		cdnDomain:  c,
 	}
@@ -48,7 +48,7 @@ func pickupRandomIdsNoDuplicates(ids []int32, listCount int) []int32 {
 	return randomIds
 }
 
-func (u *ExtractRandomImagesUseCase) ExtractRandomImages(ctx context.Context) ([]domain.LgtmImage, error) {
+func (u *UseCase) ExtractRandomImages(ctx context.Context) ([]domain.LgtmImage, error) {
 	ids, err := u.repository.FindAllIds(ctx)
 	if err != nil {
 		return nil, domain.ErrCountRecords
