@@ -17,7 +17,8 @@ import (
 	db "github.com/nekochans/lgtm-cat-api/db/sqlc"
 	"github.com/nekochans/lgtm-cat-api/handler"
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
-	"github.com/nekochans/lgtm-cat-api/usecase"
+	"github.com/nekochans/lgtm-cat-api/usecase/createltgmimage"
+	"github.com/nekochans/lgtm-cat-api/usecase/extractrandomimages"
 )
 
 var chiLambda *chiadapter.ChiLambda
@@ -58,11 +59,11 @@ func init() {
 func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	s3Repository := infrastructure.NewS3Repository(uploader, uploadS3Bucket)
-	createLgtmImageUseCase := usecase.NewCreateLgtmImageUseCase(s3Repository, lgtmImagesCdnDomain)
+	createLgtmImageUseCase := createltgmimage.NewUseCase(s3Repository, lgtmImagesCdnDomain)
 	createLgtmImageHandler := handler.NewCreateLgtmImageHandler(createLgtmImageUseCase)
 
 	lgtmImageRepository := infrastructure.NewLgtmImageRepository(q)
-	extractRandomImagesUseCase := usecase.NewExtractRandomImagesUseCase(lgtmImageRepository, lgtmImagesCdnDomain)
+	extractRandomImagesUseCase := extractrandomimages.NewUseCase(lgtmImageRepository, lgtmImagesCdnDomain)
 	extractRandomImagesHandler := handler.NewExtractRandomImagesHandler(extractRandomImagesUseCase)
 
 	if chiLambda == nil {

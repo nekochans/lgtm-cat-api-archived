@@ -1,4 +1,4 @@
-package usecase
+package createltgmimage
 
 import (
 	"bytes"
@@ -9,13 +9,13 @@ import (
 	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
-type CreateLgtmImageUseCase struct {
+type UseCase struct {
 	repository domain.S3Repository
 	cdnDomain  string
 }
 
-func NewCreateLgtmImageUseCase(r domain.S3Repository, c string) *CreateLgtmImageUseCase {
-	return &CreateLgtmImageUseCase{
+func NewUseCase(r domain.S3Repository, c string) *UseCase {
+	return &UseCase{
 		repository: r,
 		cdnDomain:  c,
 	}
@@ -26,7 +26,7 @@ type RequestBody struct {
 	ImageExtension string `json:"imageExtension"`
 }
 
-func (u *CreateLgtmImageUseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*domain.UploadedLgtmImage, error) {
+func (u *UseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*domain.UploadedLgtmImage, error) {
 
 	if !domain.CanConvertImageExtension(reqBody.ImageExtension) {
 		return nil, domain.ErrInvalidImageExtension
