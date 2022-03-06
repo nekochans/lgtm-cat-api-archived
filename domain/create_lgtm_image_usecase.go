@@ -3,7 +3,6 @@ package domain
 import (
 	"bytes"
 	"errors"
-	"github.com/google/uuid"
 	"time"
 )
 
@@ -43,12 +42,8 @@ func CanConvertImageExtension(ext string) bool {
 	return true
 }
 
-func GenerateImageName() (string, error) {
-	uid, err := uuid.NewRandom()
-	if err != nil {
-		return "", err
-	}
-	return uid.String(), nil
+func GenerateImageName(u UniqueIdGenerator) (string, error) {
+	return u.Generate()
 }
 
 func BuildS3Prefix(t time.Time) (string, error) {
