@@ -7,17 +7,20 @@ import (
 	"time"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
+	"github.com/nekochans/lgtm-cat-api/infrastructure"
 )
 
 type UseCase struct {
-	repository domain.S3Repository
-	cdnDomain  string
+	repository  domain.S3Repository
+	cdnDomain   string
+	idGenerator domain.UniqueIdGenerator
 }
 
 func NewUseCase(r domain.S3Repository, c string) *UseCase {
 	return &UseCase{
-		repository: r,
-		cdnDomain:  c,
+		repository:  r,
+		cdnDomain:   c,
+		idGenerator: &infrastructure.UuidGenerator{},
 	}
 }
 
@@ -45,7 +48,7 @@ func (u *UseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*do
 		return nil, domain.ErrTimeLoadLocation
 	}
 
-	imageName, err := domain.GenerateImageName()
+	imageName, err := domain.GenerateImageName(u.idGenerator)
 	if err != nil {
 		return nil, domain.ErrGenerateUuid
 	}
