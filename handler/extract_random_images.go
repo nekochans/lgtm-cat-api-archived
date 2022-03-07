@@ -30,7 +30,7 @@ func (h *extractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		switch errors.Cause(err) {
 		default:
-			RenderErrorResponse(w, 500, err.Error())
+			RenderErrorResponse(w, http.StatusInternalServerError, err.Error())
 		}
 
 		return
@@ -39,6 +39,6 @@ func (h *extractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Requ
 	response := &ExtractRandomImagesResponse{LgtmImages: lgtmImages}
 	responseJson, _ := json.Marshal(response)
 	fmt.Fprint(w, string(responseJson))
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", "application/json")
 }
