@@ -41,6 +41,4 @@ func (h *extractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Requ
 	fmt.Fprint(w, string(responseJson))
 	w.WriteHeader(200)
 	w.Header().Add("Content-Type", "application/json")
-
-	return
 }

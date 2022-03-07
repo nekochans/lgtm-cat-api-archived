@@ -57,6 +57,4 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 	fmt.Fprint(w, string(responseJson))
 	w.WriteHeader(202)
 	w.Header().Add("Content-Type", "application/json")
-
-	return
 }
