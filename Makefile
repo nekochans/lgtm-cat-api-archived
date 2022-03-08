@@ -1,3 +1,11 @@
+.PHONY: lint
+lint:
+	docker run --rm -v `pwd`:/app -w /app golangci/golangci-lint:v1.44.2 golangci-lint run -v
+
+.PHONY: format
+format:
+	docker run --rm -v `pwd`:/app -w /app golangci/golangci-lint:v1.44.2 golangci-lint run -v --fix
+
 .PHONY: deps
 deps:
 	go mod download

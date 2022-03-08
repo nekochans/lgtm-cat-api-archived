@@ -31,13 +31,12 @@ func contains(elems []int32, v int32) bool {
 }
 
 func pickupRandomIdsNoDuplicates(ids []int32, listCount int) []int32 {
-
 	rand.Seed(time.Now().Unix())
 	recordCount := len(ids)
 
 	var randomIds []int32
 	for i := 1; i <= listCount; {
-		n := rand.Intn(recordCount - 1)
+		n := rand.Intn(recordCount - 1) //nolint:gosec
 		if contains(randomIds, ids[n]) {
 			continue
 		}

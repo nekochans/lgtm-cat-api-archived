@@ -26,16 +26,15 @@ type CreateLgtmImageResponse struct {
 }
 
 func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) {
-
 	req, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		RenderErrorResponse(w, 500, "Failed Read Request Body")
+		RenderErrorResponse(w, http.StatusInternalServerError, "Failed Read Request Body")
 		return
 	}
 
 	var reqBody createltgmimage.RequestBody
 	if err := json.Unmarshal(req, &reqBody); err != nil {
-		RenderErrorResponse(w, 400, err.Error())
+		RenderErrorResponse(w, http.StatusBadRequest, err.Error())
 	}
 
 	image, err := h.useCase.CreateLgtmImage(r.Context(), reqBody)
@@ -44,9 +43,9 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 		case domain.ErrInvalidImageExtension:
 			fmt.Println(err)
 
-			RenderErrorResponse(w, 422, err.Error())
+			RenderErrorResponse(w, http.StatusUnprocessableEntity, err.Error())
 		default:
-			RenderErrorResponse(w, 500, err.Error())
+			RenderErrorResponse(w, http.StatusInternalServerError, err.Error())
 		}
 
 		return
@@ -55,8 +54,6 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 	response := &CreateLgtmImageResponse{ImageUrl: image.Url}
 	responseJson, _ := json.Marshal(response)
 	fmt.Fprint(w, string(responseJson))
-	w.WriteHeader(202)
+	w.WriteHeader(http.StatusAccepted)
 	w.Header().Add("Content-Type", "application/json")
-
-	return
 }

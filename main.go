@@ -57,7 +57,6 @@ func init() {
 }
 
 func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-
 	s3Repository := infrastructure.NewS3Repository(uploader, uploadS3Bucket)
 	createLgtmImageUseCase := createltgmimage.NewUseCase(s3Repository, lgtmImagesCdnDomain)
 	createLgtmImageHandler := handler.NewCreateLgtmImageHandler(createLgtmImageUseCase)
