@@ -12,12 +12,14 @@ type lgtmImageRepository struct {
 	db *db.Queries
 }
 
+const dbTimeoutSecond = 10
+
 func NewLgtmImageRepository(db *db.Queries) *lgtmImageRepository {
 	return &lgtmImageRepository{db: db}
 }
 
 func (r *lgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
-	ctx, cancel := context.WithTimeout(c, 10*time.Second)
+	ctx, cancel := context.WithTimeout(c, dbTimeoutSecond*time.Second)
 	defer cancel()
 
 	ids, err := r.db.ListLgtmImageIds(ctx)
@@ -29,7 +31,7 @@ func (r *lgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
 }
 
 func (r *lgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]domain.LgtmImageObject, error) {
-	ctx, cancel := context.WithTimeout(c, 10*time.Second)
+	ctx, cancel := context.WithTimeout(c, dbTimeoutSecond*time.Second)
 	defer cancel()
 
 	var listLgtmImagesParams = db.ListLgtmImagesParams{

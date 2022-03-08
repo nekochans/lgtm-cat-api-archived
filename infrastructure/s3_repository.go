@@ -31,9 +31,9 @@ func decideS3ContentType(ext string) string {
 
 	return contentType
 }
-
 func (r *s3Repository) Upload(c context.Context, param *domain.UploadS3param) error {
-	ctx, cancel := context.WithTimeout(c, 10*time.Second)
+	const s3timeoutSecond = 10
+	ctx, cancel := context.WithTimeout(c, s3timeoutSecond*time.Second)
 	defer cancel()
 
 	input := &s3.PutObjectInput{
