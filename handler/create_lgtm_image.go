@@ -26,7 +26,6 @@ type CreateLgtmImageResponse struct {
 }
 
 func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) {
-
 	req, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		RenderErrorResponse(w, http.StatusInternalServerError, "Failed Read Request Body")

@@ -31,7 +31,6 @@ func contains(elems []int32, v int32) bool {
 }
 
 func pickupRandomIdsNoDuplicates(ids []int32, listCount int) []int32 {
-
 	rand.Seed(time.Now().Unix())
 	recordCount := len(ids)
 

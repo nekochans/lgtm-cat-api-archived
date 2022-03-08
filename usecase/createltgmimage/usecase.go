@@ -30,7 +30,6 @@ type RequestBody struct {
 }
 
 func (u *UseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*domain.UploadedLgtmImage, error) {
-
 	if !domain.CanConvertImageExtension(reqBody.ImageExtension) {
 		return nil, domain.ErrInvalidImageExtension
 	}

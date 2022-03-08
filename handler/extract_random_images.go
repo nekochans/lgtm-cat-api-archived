@@ -25,7 +25,6 @@ type ExtractRandomImagesResponse struct {
 }
 
 func (h *extractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
-
 	lgtmImages, err := h.useCase.ExtractRandomImages(r.Context())
 	if err != nil {
 		switch errors.Cause(err) {

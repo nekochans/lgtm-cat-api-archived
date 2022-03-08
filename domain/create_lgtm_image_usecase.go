@@ -56,7 +56,6 @@ func BuildS3Prefix(t time.Time) (string, error) {
 }
 
 func CreateUploadS3param(body *bytes.Buffer, prefix, imageName, imageExtension string) *UploadS3param {
-
 	uploadKey := prefix + imageName + imageExtension
 
 	return &UploadS3param{
