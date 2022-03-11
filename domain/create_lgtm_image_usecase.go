@@ -10,7 +10,7 @@ var (
 	ErrBadRequest            = errors.New("bad request")
 	ErrInvalidImageExtension = errors.New("invalid image extension")
 	ErrDecodeImage           = errors.New("failed to decode Base64 image")
-	ErrGenerateUuid          = errors.New("failed to generate UUID")
+	ErrGenerateImageName     = errors.New("failed to generate image name")
 	ErrTimeLoadLocation      = errors.New("failed to Time LoadLocation")
 	ErrUploadToS3            = errors.New("failed to upload to S3")
 )

@@ -49,7 +49,7 @@ func (u *UseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*do
 
 	imageName, err := domain.GenerateImageName(u.idGenerator)
 	if err != nil {
-		return nil, domain.ErrGenerateUuid
+		return nil, domain.ErrGenerateImageName
 	}
 
 	uploadS3param := domain.CreateUploadS3param(
