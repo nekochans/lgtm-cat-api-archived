@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
@@ -28,12 +29,14 @@ type CreateLgtmImageResponse struct {
 func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) {
 	req, err := ioutil.ReadAll(r.Body)
 	if err != nil {
+		log.Println(err)
 		RenderErrorResponse(w, http.StatusInternalServerError, "Failed Read Request Body")
 		return
 	}
 
 	var reqBody createltgmimage.RequestBody
 	if err := json.Unmarshal(req, &reqBody); err != nil {
+		log.Println(err)
 		RenderErrorResponse(w, http.StatusBadRequest, err.Error())
 	}
 
@@ -45,6 +48,7 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 
 			RenderErrorResponse(w, http.StatusUnprocessableEntity, err.Error())
 		default:
+			log.Println(err)
 			RenderErrorResponse(w, http.StatusInternalServerError, err.Error())
 		}
 
