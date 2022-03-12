@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/nekochans/lgtm-cat-api/domain"
 	"github.com/nekochans/lgtm-cat-api/usecase/createltgmimage"
-	"github.com/pkg/errors"
 )
 
 type createLgtmImageHandler struct {
@@ -42,10 +42,9 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 
 	image, err := h.useCase.CreateLgtmImage(r.Context(), reqBody)
 	if err != nil {
-		switch errors.Cause(err) {
-		case domain.ErrInvalidImageExtension:
+		switch {
+		case errors.Is(err, domain.ErrInvalidImageExtension):
 			fmt.Println(err)
-
 			RenderErrorResponse(w, http.StatusUnprocessableEntity, err.Error())
 		default:
 			log.Println(err)
