@@ -2,7 +2,7 @@ package extractrandomimages
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -50,18 +50,17 @@ func pickupRandomIdsNoDuplicates(ids []int32, listCount int) []int32 {
 func (u *UseCase) ExtractRandomImages(ctx context.Context) ([]domain.LgtmImage, error) {
 	ids, err := u.repository.FindAllIds(ctx)
 	if err != nil {
-		return nil, domain.ErrCountRecords
+		return nil, fmt.Errorf("faild to extract randam images: %w", err)
 	}
 	if len(ids) < domain.FetchLgtmImageCount {
-		log.Println("The total record count is less than fetchLgtmImageCount")
-		return nil, domain.ErrFetchImages
+		return nil, domain.ErrRecordCount
 	}
 
 	var randomIds = pickupRandomIdsNoDuplicates(ids, domain.FetchLgtmImageCount)
 
 	rows, err := u.repository.FindByIds(ctx, randomIds)
 	if err != nil {
-		return nil, domain.ErrFetchImages
+		return nil, fmt.Errorf("faild to extract randam images: %w", err)
 	}
 
 	var lgtmImages []domain.LgtmImage

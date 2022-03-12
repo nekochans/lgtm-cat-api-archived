@@ -3,17 +3,37 @@ package domain
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"time"
 )
 
 var (
-	ErrBadRequest            = errors.New("bad request")
 	ErrInvalidImageExtension = errors.New("invalid image extension")
-	ErrDecodeImage           = errors.New("failed to decode Base64 image")
-	ErrGenerateImageName     = errors.New("failed to generate image name")
-	ErrTimeLoadLocation      = errors.New("failed to Time LoadLocation")
-	ErrUploadToS3            = errors.New("failed to upload to S3")
 )
+
+type ErrDecodeImage struct {
+	Err error
+}
+
+func (e *ErrDecodeImage) Error() string {
+	return fmt.Sprintf("failed to decode Base64 image, %s", e.Err)
+}
+
+type ErrGenerateImageName struct {
+	Err error
+}
+
+func (e *ErrGenerateImageName) Error() string {
+	return fmt.Sprintf("failed to generate image name, %s", e.Err)
+}
+
+type ErrTimeLoadLocation struct {
+	Err error
+}
+
+func (e *ErrTimeLoadLocation) Error() string {
+	return fmt.Sprintf("failed to Time LoadLocation, %s", e.Err)
+}
 
 type UploadedLgtmImage struct {
 	Url string
