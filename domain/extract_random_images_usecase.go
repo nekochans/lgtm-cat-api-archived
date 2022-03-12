@@ -1,9 +1,8 @@
 package domain
 
 import (
+	"errors"
 	"strconv"
-
-	"github.com/pkg/errors"
 )
 
 var (
