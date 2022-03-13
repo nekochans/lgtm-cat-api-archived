@@ -2,7 +2,6 @@ package infrastructure
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -20,14 +19,6 @@ func NewS3Repository(u *manager.Uploader, s string) *s3Repository {
 	return &s3Repository{uploader: u, s3Bucket: s}
 }
 
-type S3Error struct {
-	Op  string
-	Err error
-}
-
-func (e *S3Error) Error() string {
-	return fmt.Sprintf("s3Repository: %s, %s", e.Op, e.Err)
-}
 func decideS3ContentType(ext string) string {
 	contentType := ""
 
@@ -54,7 +45,7 @@ func (r *s3Repository) Upload(c context.Context, param *domain.UploadS3param) er
 
 	_, err := r.uploader.Upload(ctx, input)
 	if err != nil {
-		return &S3Error{
+		return &domain.S3Error{
 			Op:  "Upload",
 			Err: err,
 		}
