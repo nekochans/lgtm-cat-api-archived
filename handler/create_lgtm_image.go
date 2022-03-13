@@ -44,7 +44,7 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrInvalidImageExtension):
-			fmt.Println(err)
+			log.Println(err)
 			RenderErrorResponse(w, http.StatusUnprocessableEntity, err.Error())
 		default:
 			log.Println(err)
