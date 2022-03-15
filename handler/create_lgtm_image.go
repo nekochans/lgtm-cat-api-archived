@@ -30,14 +30,14 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 	req, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
-		RenderErrorResponse(w, http.StatusInternalServerError, "Failed Read Request Body")
+		RenderErrorResponse(w, InternalServerError)
 		return
 	}
 
 	var reqBody createltgmimage.RequestBody
 	if err := json.Unmarshal(req, &reqBody); err != nil {
 		log.Println(err)
-		RenderErrorResponse(w, http.StatusBadRequest, err.Error())
+		RenderErrorResponse(w, BadRequest)
 	}
 
 	image, err := h.useCase.CreateLgtmImage(r.Context(), reqBody)
@@ -45,10 +45,10 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 		switch {
 		case errors.Is(err, domain.ErrInvalidImageExtension):
 			log.Println(err)
-			RenderErrorResponse(w, http.StatusUnprocessableEntity, err.Error())
+			RenderErrorResponse(w, UnprocessableEntity)
 		default:
 			log.Println(err)
-			RenderErrorResponse(w, http.StatusInternalServerError, err.Error())
+			RenderErrorResponse(w, InternalServerError)
 		}
 
 		return
