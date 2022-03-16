@@ -24,7 +24,10 @@ func (r *lgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
 
 	ids, err := r.db.ListLgtmImageIds(ctx)
 	if err != nil {
-		return nil, err
+		return nil, &domain.LgtmImageError{
+			Op:  "FindAllIds",
+			Err: err,
+		}
 	}
 
 	return ids, nil
@@ -48,7 +51,10 @@ func (r *lgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]domai
 
 	rows, err := r.db.ListLgtmImages(ctx, listLgtmImagesParams)
 	if err != nil {
-		return nil, err
+		return nil, &domain.LgtmImageError{
+			Op:  "FindByIds",
+			Err: err,
+		}
 	}
 
 	var lgtmImage []domain.LgtmImageObject

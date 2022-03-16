@@ -45,7 +45,10 @@ func (r *s3Repository) Upload(c context.Context, param *domain.UploadS3param) er
 
 	_, err := r.uploader.Upload(ctx, input)
 	if err != nil {
-		return err
+		return &domain.S3Error{
+			Op:  "Upload",
+			Err: err,
+		}
 	}
 
 	return nil

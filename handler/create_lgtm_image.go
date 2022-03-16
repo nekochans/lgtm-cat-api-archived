@@ -2,13 +2,14 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
 	"github.com/nekochans/lgtm-cat-api/usecase/createltgmimage"
-	"github.com/pkg/errors"
 )
 
 type createLgtmImageHandler struct {
@@ -28,24 +29,26 @@ type CreateLgtmImageResponse struct {
 func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) {
 	req, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		RenderErrorResponse(w, http.StatusInternalServerError, "Failed Read Request Body")
+		log.Println(err)
+		RenderErrorResponse(w, InternalServerError)
 		return
 	}
 
 	var reqBody createltgmimage.RequestBody
 	if err := json.Unmarshal(req, &reqBody); err != nil {
-		RenderErrorResponse(w, http.StatusBadRequest, err.Error())
+		log.Println(err)
+		RenderErrorResponse(w, BadRequest)
 	}
 
 	image, err := h.useCase.CreateLgtmImage(r.Context(), reqBody)
 	if err != nil {
-		switch errors.Cause(err) {
-		case domain.ErrInvalidImageExtension:
-			fmt.Println(err)
-
-			RenderErrorResponse(w, http.StatusUnprocessableEntity, err.Error())
+		switch {
+		case errors.Is(err, domain.ErrInvalidImageExtension):
+			log.Println(err)
+			RenderErrorResponse(w, UnprocessableEntity)
 		default:
-			RenderErrorResponse(w, http.StatusInternalServerError, err.Error())
+			log.Println(err)
+			RenderErrorResponse(w, InternalServerError)
 		}
 
 		return

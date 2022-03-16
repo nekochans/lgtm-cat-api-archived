@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
@@ -26,7 +27,8 @@ type ExtractRandomImagesResponse struct {
 func (h *extractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
 	lgtmImages, err := h.useCase.ExtractRandomImages(r.Context())
 	if err != nil {
-		RenderErrorResponse(w, http.StatusInternalServerError, err.Error())
+		log.Println(err)
+		RenderErrorResponse(w, InternalServerError)
 		return
 	}
 

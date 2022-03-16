@@ -1,14 +1,12 @@
 package domain
 
 import (
+	"errors"
 	"strconv"
-
-	"github.com/pkg/errors"
 )
 
 var (
-	ErrCountRecords = errors.New("failed to count LGTM images records")
-	ErrFetchImages  = errors.New("failed to fetch LGTM images")
+	ErrRecordCount = errors.New("the total record count is less than fetchLgtmImageCount")
 )
 
 const FetchLgtmImageCount = 9
