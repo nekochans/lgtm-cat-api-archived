@@ -31,6 +31,7 @@ func (d *mockS3Repository) Upload(c context.Context, u *domain.UploadS3param) er
 //nolint:funlen
 func TestCreateLgtmImage(t *testing.T) {
 	imageName := "test-image-name"
+	cdnDomain := "lgtm-images.lgtmeow.com"
 
 	t.Run("Success create LGTM image", func(t *testing.T) {
 		s3Mock := &mockS3Repository{
@@ -43,10 +44,11 @@ func TestCreateLgtmImage(t *testing.T) {
 				return imageName, nil
 			},
 		}
+
 		u := &UseCase{
 			repository:  s3Mock,
 			idGenerator: idGenMock,
-			cdnDomain:   imageName,
+			cdnDomain:   cdnDomain,
 		}
 
 		r := &RequestBody{
@@ -83,7 +85,7 @@ func TestCreateLgtmImage(t *testing.T) {
 		u := &UseCase{
 			repository:  s3Mock,
 			idGenerator: idGenMock,
-			cdnDomain:   imageName,
+			cdnDomain:   cdnDomain,
 		}
 
 		r := &RequestBody{
@@ -115,7 +117,7 @@ func TestCreateLgtmImage(t *testing.T) {
 		u := &UseCase{
 			repository:  s3Mock,
 			idGenerator: idGenMock,
-			cdnDomain:   imageName,
+			cdnDomain:   cdnDomain,
 		}
 
 		r := &RequestBody{
@@ -152,7 +154,7 @@ func TestCreateLgtmImage(t *testing.T) {
 		u := &UseCase{
 			repository:  s3Mock,
 			idGenerator: idGenMock,
-			cdnDomain:   imageName,
+			cdnDomain:   cdnDomain,
 		}
 
 		r := &RequestBody{
