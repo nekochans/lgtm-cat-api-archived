@@ -2,6 +2,7 @@ package createltgmimage
 
 import (
 	"context"
+	"errors"
 	"reflect"
 	"testing"
 	"time"
@@ -27,7 +28,10 @@ func (d *mockS3Repository) Upload(c context.Context, u *domain.UploadS3param) er
 	return d.FakeUpload(c, u)
 }
 
+//nolint:funlen
 func TestNewUseCase(t *testing.T) {
+	imageName := "test-image-name"
+
 	t.Run("Success create LGTM image", func(t *testing.T) {
 		s3Mock := &mockS3Repository{
 			FakeUpload: func(context.Context, *domain.UploadS3param) error {
@@ -36,11 +40,9 @@ func TestNewUseCase(t *testing.T) {
 		}
 		idGenMock := &mockUniqueIdGenerator{
 			FakeGenerate: func() (string, error) {
-				return "testimagename", nil
+				return imageName, nil
 			},
 		}
-		imageName := "testimagename"
-
 		u := &UseCase{
 			repository:  s3Mock,
 			idGenerator: idGenMock,
@@ -54,16 +56,118 @@ func TestNewUseCase(t *testing.T) {
 		ctx := context.Background()
 		res, err := u.CreateLgtmImage(ctx, *r)
 		if err != nil {
-			t.Fatalf("エラーにならないはずなのにエラーになった %v", err)
+			t.Fatalf("unexpected err = %s", err)
 		}
 
 		prefix, _ := domain.BuildS3Prefix(time.Now().UTC())
-		expected := &domain.UploadedLgtmImage{
+		want := &domain.UploadedLgtmImage{
 			Url: "https://" + u.cdnDomain + "/" + prefix + imageName + ".webp",
 		}
 
-		if reflect.DeepEqual(res, expected) == false {
-			t.Error("\nwant: ", res, "\ngot: ", expected)
+		if reflect.DeepEqual(res, want) == false {
+			t.Errorf("\nwant\n%s\ngot\n%s", want, res)
+		}
+	})
+
+	t.Run("Failure unexpect image extension", func(t *testing.T) {
+		s3Mock := &mockS3Repository{
+			FakeUpload: func(context.Context, *domain.UploadS3param) error {
+				return nil
+			},
+		}
+		idGenMock := &mockUniqueIdGenerator{
+			FakeGenerate: func() (string, error) {
+				return imageName, nil
+			},
+		}
+		u := &UseCase{
+			repository:  s3Mock,
+			idGenerator: idGenMock,
+			cdnDomain:   imageName,
+		}
+
+		r := &RequestBody{
+			Image:          "",
+			ImageExtension: ".webp",
+		}
+
+		ctx := context.Background()
+		_, err := u.CreateLgtmImage(ctx, *r)
+		if err == nil {
+			t.Fatal("expected to return an error, but no error")
+		}
+		if !errors.Is(err, domain.ErrInvalidImageExtension) {
+			t.Fatalf("\nwant\n%s\ngot\n%s", domain.ErrInvalidImageExtension, err)
+		}
+	})
+
+	t.Run("Failure generate image name", func(t *testing.T) {
+		s3Mock := &mockS3Repository{
+			FakeUpload: func(context.Context, *domain.UploadS3param) error {
+				return nil
+			},
+		}
+		idGenMock := &mockUniqueIdGenerator{
+			FakeGenerate: func() (string, error) {
+				return "", errors.New("dummy error")
+			},
+		}
+		u := &UseCase{
+			repository:  s3Mock,
+			idGenerator: idGenMock,
+			cdnDomain:   imageName,
+		}
+
+		r := &RequestBody{
+			Image:          "",
+			ImageExtension: ".png",
+		}
+
+		ctx := context.Background()
+		_, err := u.CreateLgtmImage(ctx, *r)
+
+		if err == nil {
+			t.Fatal("expected to return an error, but no error")
+		}
+		var want *domain.ErrGenerateImageName
+		if !errors.As(err, &want) {
+			t.Errorf("\nwant\n%T\ngot\n%T", want, errors.Unwrap(err))
+		}
+	})
+
+	t.Run("Failure upload image to s3", func(t *testing.T) {
+		s3Mock := &mockS3Repository{
+			FakeUpload: func(context.Context, *domain.UploadS3param) error {
+				return &domain.S3Error{
+					Op:  "Upload",
+					Err: errors.New("s3 upload dummy error"),
+				}
+			},
+		}
+		idGenMock := &mockUniqueIdGenerator{
+			FakeGenerate: func() (string, error) {
+				return imageName, nil
+			},
+		}
+		u := &UseCase{
+			repository:  s3Mock,
+			idGenerator: idGenMock,
+			cdnDomain:   imageName,
+		}
+
+		r := &RequestBody{
+			Image:          "",
+			ImageExtension: ".png",
+		}
+
+		ctx := context.Background()
+		_, err := u.CreateLgtmImage(ctx, *r)
+		if err == nil {
+			t.Fatal("expected to return an error, but no error")
+		}
+		var want *domain.S3Error
+		if !errors.As(err, &want) {
+			t.Errorf("\nwant\n%T\ngot\n%T", want, errors.Unwrap(err))
 		}
 	})
 }
