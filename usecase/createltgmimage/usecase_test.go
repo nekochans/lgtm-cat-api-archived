@@ -29,7 +29,7 @@ func (d *mockS3Repository) Upload(c context.Context, u *domain.UploadS3param) er
 }
 
 //nolint:funlen
-func TestNewUseCase(t *testing.T) {
+func TestCreateLgtmImage(t *testing.T) {
 	imageName := "test-image-name"
 
 	t.Run("Success create LGTM image", func(t *testing.T) {
