@@ -20,3 +20,6 @@ lgtm-cat-api.iml
 
 # output go build
 /bin
+
+# goenv setting files
+.go-version
