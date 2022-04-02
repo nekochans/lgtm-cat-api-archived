@@ -29,23 +29,24 @@ func TestExtractRandomImages(t *testing.T) {
 	cdnDomain := "lgtm-images.lgtmeow.com"
 
 	t.Run("Success extract random images", func(t *testing.T) {
+		var findAllIdsResponse []int32
+		for i := 1; i <= domain.FetchLgtmImageCount; i++ {
+			findAllIdsResponse = append(
+				findAllIdsResponse,
+				int32(i),
+			)
+		}
+
 		var findByIdsMockResponse []domain.LgtmImageObject
 		for i := 1; i < 20; i++ {
 			findByIdsMockResponse = append(
 				findByIdsMockResponse,
 				domain.LgtmImageObject{Id: int32(i), Path: "2022/02/22/22", Filename: "image-name" + fmt.Sprint(i)})
 		}
-		var ids []int32
-		for i := 1; i <= domain.FetchLgtmImageCount; i++ {
-			ids = append(
-				ids,
-				int32(i),
-			)
-		}
 
 		mock := &mockLgtmImageRepository{
 			FakeFindAllIds: func(context.Context) ([]int32, error) {
-				return ids, nil
+				return findAllIdsResponse, nil
 			},
 			FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
 				return findByIdsMockResponse, nil
@@ -73,18 +74,17 @@ func TestExtractRandomImages(t *testing.T) {
 	})
 
 	t.Run("Failure error record count", func(t *testing.T) {
-		var ids []int32
+		var findAllIdsResponse []int32
 		for i := 1; i <= domain.FetchLgtmImageCount-1; i++ {
-			ids = append(
-				ids,
+			findAllIdsResponse = append(
+				findAllIdsResponse,
 				int32(i),
 			)
 		}
 
 		mock := &mockLgtmImageRepository{
-
 			FakeFindAllIds: func(context.Context) ([]int32, error) {
-				return ids, nil
+				return findAllIdsResponse, nil
 			},
 			FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
 				return nil, nil
@@ -129,17 +129,17 @@ func TestExtractRandomImages(t *testing.T) {
 	})
 
 	t.Run("Failure find all ids", func(t *testing.T) {
-		var ids []int32
+		var findAllIdsResponse []int32
 		for i := 1; i <= domain.FetchLgtmImageCount; i++ {
-			ids = append(
-				ids,
+			findAllIdsResponse = append(
+				findAllIdsResponse,
 				int32(i),
 			)
 		}
 
 		mock := &mockLgtmImageRepository{
 			FakeFindAllIds: func(context.Context) ([]int32, error) {
-				return ids, nil
+				return findAllIdsResponse, nil
 			},
 			FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
 				return nil, &domain.LgtmImageError{
