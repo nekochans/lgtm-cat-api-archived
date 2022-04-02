@@ -69,14 +69,11 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	if chiLambda == nil {
 		r := chi.NewRouter()
 
-		maxAge := 300
 		r.Use(cors.Handler(cors.Options{
-			AllowedOrigins:   []string{"https://*", "http://localhost:2222"},
+			AllowedOrigins:   []string{"http://localhost:2222"},
 			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-			AllowedHeaders:   []string{"*"},
-			ExposedHeaders:   []string{"*"},
+			AllowedHeaders:   []string{"Authorization", "Content-Type"},
 			AllowCredentials: true,
-			MaxAge:           maxAge,
 		}))
 
 		r.Post("/lgtm-images", createLgtmImageHandler.Create)
