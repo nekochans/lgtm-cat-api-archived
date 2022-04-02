@@ -36,8 +36,7 @@ func TestExtractRandomImages(t *testing.T) {
 				domain.LgtmImageObject{Id: int32(i), Path: "2022/02/22/22", Filename: "image-name" + fmt.Sprint(i)})
 		}
 		var ids []int32
-		// TODO pickupRandomIdsNoDuplicates 修正後 +1 を削除する
-		for i := 1; i <= domain.FetchLgtmImageCount+1; i++ {
+		for i := 1; i <= domain.FetchLgtmImageCount; i++ {
 			ids = append(
 				ids,
 				int32(i),
@@ -131,8 +130,7 @@ func TestExtractRandomImages(t *testing.T) {
 
 	t.Run("Failure find all ids", func(t *testing.T) {
 		var ids []int32
-		// TODO pickupRandomIdsNoDuplicates 修正後 +1 を削除する
-		for i := 1; i <= domain.FetchLgtmImageCount+1; i++ {
+		for i := 1; i <= domain.FetchLgtmImageCount; i++ {
 			ids = append(
 				ids,
 				int32(i),

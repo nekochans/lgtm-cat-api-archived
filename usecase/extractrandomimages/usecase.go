@@ -36,7 +36,7 @@ func pickupRandomIdsNoDuplicates(ids []int32, listCount int) []int32 {
 
 	var randomIds []int32
 	for i := 1; i <= listCount; {
-		n := rand.Intn(recordCount - 1) //nolint:gosec
+		n := rand.Intn(recordCount) //nolint:gosec
 		if contains(randomIds, ids[n]) {
 			continue
 		}
