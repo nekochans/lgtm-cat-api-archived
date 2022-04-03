@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	chiadapter "github.com/awslabs/aws-lambda-go-api-proxy/chi"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 	_ "github.com/go-sql-driver/mysql"
 	db "github.com/nekochans/lgtm-cat-api/db/sqlc"
 	"github.com/nekochans/lgtm-cat-api/handler"
@@ -67,6 +68,14 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 	if chiLambda == nil {
 		r := chi.NewRouter()
+
+		r.Use(cors.Handler(cors.Options{
+			AllowedOrigins:   []string{"http://localhost:2222"},
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"Authorization", "Content-Type"},
+			AllowCredentials: true,
+		}))
+
 		r.Post("/lgtm-images", createLgtmImageHandler.Create)
 		r.Get("/lgtm-images", extractRandomImagesHandler.Extract)
 		chiLambda = chiadapter.New(r)
