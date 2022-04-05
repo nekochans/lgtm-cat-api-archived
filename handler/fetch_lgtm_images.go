@@ -10,12 +10,12 @@ import (
 	"github.com/nekochans/lgtm-cat-api/usecase/fetchlgtmimages"
 )
 
-type extractRandomImagesHandler struct {
+type fetchImagesHandler struct {
 	useCase *fetchlgtmimages.UseCase
 }
 
-func NewExtractRandomImagesHandler(c *fetchlgtmimages.UseCase) *extractRandomImagesHandler {
-	return &extractRandomImagesHandler{
+func NewFetchImagesHandler(c *fetchlgtmimages.UseCase) *fetchImagesHandler {
+	return &fetchImagesHandler{
 		useCase: c,
 	}
 }
@@ -28,7 +28,7 @@ type RetrieveRecentlyCreatedImagesResponse struct {
 	LgtmImages []domain.LgtmImage `json:"lgtmImages"`
 }
 
-func (h *extractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
+func (h *fetchImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
 	lgtmImages, err := h.useCase.ExtractRandomImages(r.Context())
 	if err != nil {
 		log.Println(err)
@@ -43,7 +43,7 @@ func (h *extractRandomImagesHandler) Extract(w http.ResponseWriter, r *http.Requ
 	w.Header().Add("Content-Type", "application/json")
 }
 
-func (h *extractRandomImagesHandler) RetrieveRecentlyCreated(w http.ResponseWriter, r *http.Request) {
+func (h *fetchImagesHandler) RetrieveRecentlyCreated(w http.ResponseWriter, r *http.Request) {
 	lgtmImages, err := h.useCase.RetrieveRecentlyCreatedImages(r.Context())
 	if err != nil {
 		log.Println(err)

@@ -63,7 +63,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 
 	lgtmImageRepository := infrastructure.NewLgtmImageRepository(q)
 	extractRandomImagesUseCase := fetchlgtmimages.NewUseCase(lgtmImageRepository, lgtmImagesCdnDomain)
-	extractRandomImagesHandler := handler.NewExtractRandomImagesHandler(extractRandomImagesUseCase)
+	extractRandomImagesHandler := handler.NewFetchImagesHandler(extractRandomImagesUseCase)
 
 	if chiLambda == nil {
 		r := chi.NewRouter()
