@@ -64,3 +64,23 @@ func (r *lgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]domai
 
 	return lgtmImage, nil
 }
+
+func (r *lgtmImageRepository) FindRecentlyCreated(c context.Context, count int) ([]domain.LgtmImageObject, error) {
+	ctx, cancel := context.WithTimeout(c, dbTimeoutSecond*time.Second)
+	defer cancel()
+
+	rows, err := r.db.ListRecentlyCreatedLgtmImages(ctx, int32(count))
+	if err != nil {
+		return nil, &domain.LgtmImageError{
+			Op:  "FindRecentlyCreated",
+			Err: err,
+		}
+	}
+
+	var lgtmImage []domain.LgtmImageObject
+	for _, v := range rows {
+		lgtmImage = append(lgtmImage, domain.LgtmImageObject{Id: v.ID, Path: v.Path, Filename: v.Filename})
+	}
+
+	return lgtmImage, nil
+}

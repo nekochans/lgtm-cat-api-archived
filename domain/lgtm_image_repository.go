@@ -8,6 +8,7 @@ import (
 type LgtmImageRepository interface {
 	FindAllIds(context.Context) ([]int32, error)
 	FindByIds(context.Context, []int32) ([]LgtmImageObject, error)
+	FindRecentlyCreated(context.Context, int) ([]LgtmImageObject, error)
 }
 
 type LgtmImageError struct {
