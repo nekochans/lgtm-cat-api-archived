@@ -7,14 +7,14 @@ import (
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
-	"github.com/nekochans/lgtm-cat-api/usecase/extractrandomimages"
+	"github.com/nekochans/lgtm-cat-api/usecase/fetchlgtmimages"
 )
 
 type extractRandomImagesHandler struct {
-	useCase *extractrandomimages.UseCase
+	useCase *fetchlgtmimages.UseCase
 }
 
-func NewExtractRandomImagesHandler(c *extractrandomimages.UseCase) *extractRandomImagesHandler {
+func NewExtractRandomImagesHandler(c *fetchlgtmimages.UseCase) *extractRandomImagesHandler {
 	return &extractRandomImagesHandler{
 		useCase: c,
 	}

@@ -1,4 +1,4 @@
-package extractrandomimages
+package fetchlgtmimages
 
 import (
 	"context"

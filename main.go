@@ -18,7 +18,7 @@ import (
 	"github.com/nekochans/lgtm-cat-api/handler"
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
 	"github.com/nekochans/lgtm-cat-api/usecase/createltgmimage"
-	"github.com/nekochans/lgtm-cat-api/usecase/extractrandomimages"
+	"github.com/nekochans/lgtm-cat-api/usecase/fetchlgtmimages"
 )
 
 var chiLambda *chiadapter.ChiLambda
@@ -62,7 +62,7 @@ func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	createLgtmImageHandler := handler.NewCreateLgtmImageHandler(createLgtmImageUseCase)
 
 	lgtmImageRepository := infrastructure.NewLgtmImageRepository(q)
-	extractRandomImagesUseCase := extractrandomimages.NewUseCase(lgtmImageRepository, lgtmImagesCdnDomain)
+	extractRandomImagesUseCase := fetchlgtmimages.NewUseCase(lgtmImageRepository, lgtmImagesCdnDomain)
 	extractRandomImagesHandler := handler.NewExtractRandomImagesHandler(extractRandomImagesUseCase)
 
 	if chiLambda == nil {
