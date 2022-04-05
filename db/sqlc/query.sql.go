@@ -89,3 +89,37 @@ func (q *Queries) ListLgtmImages(ctx context.Context, arg ListLgtmImagesParams) 
 	}
 	return items, nil
 }
+
+const listRecentlyCreatedLgtmImages = `-- name: ListRecentlyCreatedLgtmImages :many
+SELECT id, filename, path FROM lgtm_images
+ORDER BY id DESC LIMIT ?
+`
+
+type ListRecentlyCreatedLgtmImagesRow struct {
+	ID       int32
+	Filename string
+	Path     string
+}
+
+func (q *Queries) ListRecentlyCreatedLgtmImages(ctx context.Context, limit int32) ([]ListRecentlyCreatedLgtmImagesRow, error) {
+	rows, err := q.db.QueryContext(ctx, listRecentlyCreatedLgtmImages, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListRecentlyCreatedLgtmImagesRow
+	for rows.Next() {
+		var i ListRecentlyCreatedLgtmImagesRow
+		if err := rows.Scan(&i.ID, &i.Filename, &i.Path); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
