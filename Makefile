@@ -1,3 +1,7 @@
+.PHONY: sqlc-generate
+sqlc-generate:
+	docker run --rm -v `pwd`:/src -w /src kjconroy/sqlc generate
+
 .PHONY: lint
 lint:
 	docker run --rm -v `pwd`:/app -w /app golangci/golangci-lint:v1.44.2 golangci-lint run -v

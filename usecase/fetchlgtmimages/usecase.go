@@ -1,4 +1,4 @@
-package extractrandomimages
+package fetchlgtmimages
 
 import (
 	"context"
@@ -61,6 +61,21 @@ func (u *UseCase) ExtractRandomImages(ctx context.Context) ([]domain.LgtmImage, 
 	rows, err := u.repository.FindByIds(ctx, randomIds)
 	if err != nil {
 		return nil, fmt.Errorf("faild to extract randam images: %w", err)
+	}
+
+	var lgtmImages []domain.LgtmImage
+	for _, row := range rows {
+		lgtmImage := domain.CreateLgtmImage(row.Id, u.cdnDomain, row.Path, row.Filename)
+		lgtmImages = append(lgtmImages, *lgtmImage)
+	}
+
+	return lgtmImages, nil
+}
+
+func (u *UseCase) RetrieveRecentlyCreatedImages(ctx context.Context) ([]domain.LgtmImage, error) {
+	rows, err := u.repository.FindRecentlyCreated(ctx, domain.FetchLgtmImageCount)
+	if err != nil {
+		return nil, fmt.Errorf("faild to retrieve recently created images: %w", err)
 	}
 
 	var lgtmImages []domain.LgtmImage

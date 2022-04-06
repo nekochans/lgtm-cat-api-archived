@@ -1,4 +1,4 @@
-package extractrandomimages
+package fetchlgtmimages
 
 import (
 	"context"
@@ -12,8 +12,9 @@ import (
 
 type mockLgtmImageRepository struct {
 	domain.LgtmImageRepository
-	FakeFindAllIds func(context.Context) ([]int32, error)
-	FakeFindByIds  func(context.Context, []int32) ([]domain.LgtmImageObject, error)
+	FakeFindAllIds          func(context.Context) ([]int32, error)
+	FakeFindByIds           func(context.Context, []int32) ([]domain.LgtmImageObject, error)
+	FakeFindRecentlyCreated func(context.Context, int) ([]domain.LgtmImageObject, error)
 }
 
 func (m *mockLgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
@@ -24,10 +25,14 @@ func (m *mockLgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]d
 	return m.FakeFindByIds(c, ids)
 }
 
+func (m *mockLgtmImageRepository) FindRecentlyCreated(c context.Context, count int) ([]domain.LgtmImageObject, error) {
+	return m.FakeFindRecentlyCreated(c, count)
+}
+
+var cdnDomain = "lgtm-images.lgtmeow.com"
+
 //nolint:funlen
 func TestExtractRandomImages(t *testing.T) {
-	cdnDomain := "lgtm-images.lgtmeow.com"
-
 	t.Run("Success extract random images", func(t *testing.T) {
 		var findAllIdsResponse []int32
 		for i := 1; i <= domain.FetchLgtmImageCount; i++ {
@@ -153,6 +158,64 @@ func TestExtractRandomImages(t *testing.T) {
 
 		ctx := context.Background()
 		_, err := u.ExtractRandomImages(ctx)
+		if err == nil {
+			t.Fatal("expected to return an error, but no error")
+		}
+		var want *domain.LgtmImageError
+		if !errors.As(err, &want) {
+			t.Errorf("\nwant\n%T\ngot\n%T", want, errors.Unwrap(err))
+		}
+	})
+}
+
+func TestRetrieveRecentlyCreatedImages(t *testing.T) {
+	t.Run("Success retrieve recently created images", func(t *testing.T) {
+		var findRecentlyCreatedResponse []domain.LgtmImageObject
+		for i := 1; i < 20; i++ {
+			findRecentlyCreatedResponse = append(
+				findRecentlyCreatedResponse,
+				domain.LgtmImageObject{Id: int32(i), Path: "2022/02/22/22", Filename: "image-name" + fmt.Sprint(i)})
+		}
+
+		mock := &mockLgtmImageRepository{
+			FakeFindRecentlyCreated: func(context.Context, int) ([]domain.LgtmImageObject, error) {
+				return findRecentlyCreatedResponse, nil
+			},
+		}
+		u := NewUseCase(mock, cdnDomain)
+
+		ctx := context.Background()
+		res, err := u.RetrieveRecentlyCreatedImages(ctx)
+		if err != nil {
+			t.Fatalf("unexpected err = %s", err)
+		}
+
+		var want []domain.LgtmImage
+		for _, v := range findRecentlyCreatedResponse {
+			want = append(want, domain.LgtmImage{
+				Id:  fmt.Sprint(v.Id),
+				Url: "https://" + u.cdnDomain + "/" + v.Path + "/" + v.Filename + ".webp",
+			})
+		}
+
+		if reflect.DeepEqual(res, want) == false {
+			t.Errorf("\nwant\n%s\ngot\n%s", want, res)
+		}
+	})
+
+	t.Run("Failure find recently created images", func(t *testing.T) {
+		mock := &mockLgtmImageRepository{
+			FakeFindRecentlyCreated: func(context.Context, int) ([]domain.LgtmImageObject, error) {
+				return nil, &domain.LgtmImageError{
+					Op:  "FindRecentlyCreated",
+					Err: errors.New("FindRecentlyCreated dummy error"),
+				}
+			},
+		}
+		u := NewUseCase(mock, cdnDomain)
+
+		ctx := context.Background()
+		_, err := u.RetrieveRecentlyCreatedImages(ctx)
 		if err == nil {
 			t.Fatal("expected to return an error, but no error")
 		}
