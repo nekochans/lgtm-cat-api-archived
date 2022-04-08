@@ -2,12 +2,18 @@ package fetchlgtmimages
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"log"
+	"path/filepath"
 	"reflect"
 	"testing"
 
+	sqlc "github.com/nekochans/lgtm-cat-api/db/sqlc"
 	"github.com/nekochans/lgtm-cat-api/domain"
+	"github.com/nekochans/lgtm-cat-api/infrastructure"
+	"github.com/nekochans/lgtm-cat-api/test"
 )
 
 type mockLgtmImageRepository struct {
@@ -30,6 +36,29 @@ func (m *mockLgtmImageRepository) FindRecentlyCreated(c context.Context, count i
 }
 
 var cdnDomain = "lgtm-images.lgtmeow.com"
+
+var testDb *sql.DB
+
+// Go1.15 から TestMain には os.Exit() のコールが不要になったのでlintのルールを無効化
+//nolint:staticcheck
+func TestMain(m *testing.M) {
+	dbCreator := &test.DbCreator{}
+	var err error
+	testDb, err = dbCreator.Create()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	seeder := &test.Seeder{Db: testDb}
+	err = seeder.TruncateAllTable()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	m.Run()
+
+	_ = seeder.TruncateAllTable()
+}
 
 //nolint:funlen
 func TestExtractRandomImages(t *testing.T) {
@@ -222,6 +251,49 @@ func TestRetrieveRecentlyCreatedImages(t *testing.T) {
 		var want *domain.LgtmImageError
 		if !errors.As(err, &want) {
 			t.Errorf("\nwant\n%T\ngot\n%T", want, errors.Unwrap(err))
+		}
+	})
+}
+
+func TestRetrieveRecentlyCreatedImagesConnectToDb(t *testing.T) {
+	t.Run("Success retrieve recently created images", func(t *testing.T) {
+		testDataDir, err := filepath.Abs("./testdata")
+		if err != nil {
+			t.Fatal("failed to read test data", err)
+		}
+		seeder := &test.Seeder{Db: testDb, DirPath: testDataDir}
+		err = seeder.Execute()
+		if err != nil {
+			t.Fatal("failed seeder.Execute()", err)
+		}
+
+		q := sqlc.New(testDb)
+		lgtmImageRepository := infrastructure.NewLgtmImageRepository(q)
+		u := NewUseCase(lgtmImageRepository, cdnDomain)
+
+		ctx := context.Background()
+		res, err := u.RetrieveRecentlyCreatedImages(ctx)
+		if err != nil {
+			t.Fatalf("unexpected err = %s", err)
+		}
+
+		var want []domain.LgtmImage
+		for i := 15; i > 6; i-- {
+			var dd string
+			if i < 10 {
+				dd = "0" + fmt.Sprint(i)
+			} else {
+				dd = fmt.Sprint(i)
+			}
+
+			want = append(want, domain.LgtmImage{
+				Id:  fmt.Sprint(i),
+				Url: "https://" + u.cdnDomain + "/" + "2022/02/02/" + dd + "/" + "filename" + fmt.Sprint(i) + ".webp",
+			})
+		}
+
+		if reflect.DeepEqual(res, want) == false {
+			t.Errorf("\nwant\n%s\ngot\n%s", want, res)
 		}
 	})
 }
