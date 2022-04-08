@@ -196,6 +196,43 @@ func TestExtractRandomImages(t *testing.T) {
 		}
 	})
 }
+func TestExtractRandomImagesConnectToDb(t *testing.T) {
+	t.Run("Success extract random images", func(t *testing.T) {
+		testDataDir, err := filepath.Abs("./testdata")
+		if err != nil {
+			t.Fatal("failed to read test data", err)
+		}
+		seeder := &test.Seeder{Db: testDb, DirPath: testDataDir}
+		err = seeder.Execute()
+		if err != nil {
+			t.Fatal("failed seeder.Execute()", err)
+		}
+
+		q := sqlc.New(testDb)
+		lgtmImageRepository := infrastructure.NewLgtmImageRepository(q)
+		u := NewUseCase(lgtmImageRepository, cdnDomain)
+
+		ctx := context.Background()
+		res, err := u.ExtractRandomImages(ctx)
+		if err != nil {
+			t.Fatalf("unexpected err = %s", err)
+		}
+
+		if len(res) != domain.FetchLgtmImageCount {
+			t.Fatalf("\nwant count\n%d\ngot  count\n%d", domain.FetchLgtmImageCount, len(res))
+		}
+
+		// ランダムに抽出するので型のみテストする
+		for _, v := range res {
+			fmt.Println(v)
+			_, ok := interface{}(v).(domain.LgtmImage)
+			if !ok {
+				t.Fatalf("\nwant\n%T\ngot\n%T", v, domain.LgtmImage{})
+				return
+			}
+		}
+	})
+}
 
 func TestRetrieveRecentlyCreatedImages(t *testing.T) {
 	t.Run("Success retrieve recently created images", func(t *testing.T) {
