@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/aws/aws-lambda-go/events"
 	"log"
 	"os"
 
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
