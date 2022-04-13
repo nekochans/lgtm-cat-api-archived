@@ -10,6 +10,7 @@ import (
 	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
+// コメント追加
 type s3Repository struct {
 	uploader *manager.Uploader
 	s3Bucket string
