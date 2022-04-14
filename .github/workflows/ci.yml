@@ -56,4 +56,4 @@ jobs:
           go mod download
       - name: run unit tests
         run: |
-          go test -v ./usecase/createltgmimage
+          go test -v ./usecase/fetchlgtmimages
