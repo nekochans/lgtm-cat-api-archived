@@ -8,6 +8,16 @@ on:
 permissions:
   contents: read
 
+env:
+  DB_USERNAME: ${{ secrets.DB_USERNAME }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  DB_HOSTNAME: ${{ secrets.DB_HOSTNAME }}
+  TEST_DB_USER: ${{ secrets.DB_USERNAME }}
+  TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+  TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}
+  TEST_DB_HOST: ${{ secrets.TEST_DB_HOST }}
+
 jobs:
   golangci:
     name: lint
