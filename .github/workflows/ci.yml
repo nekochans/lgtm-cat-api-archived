@@ -52,6 +52,7 @@ jobs:
         working-directory: ./lgtm-cat-migration
         run: docker-compose up --build -d
       - name: migration up
+        working-directory: ./lgtm-cat-migration
         run: |
           sleep 20
           docker-compose exec -T migrate ./migrate_up.sh
