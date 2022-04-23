@@ -46,10 +46,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: nekochans/lgtm-cat-migration
+          ref: feature/add-docer-compose-for-ci
           path: lgtm-cat-migration
       - name: docker-compose up
         working-directory: ./lgtm-cat-migration
-        run: docker-compose up --build -d
+        run: docker-compose -f docker-compose-ci.yml up --build -d
       - name: migration up
         working-directory: ./lgtm-cat-migration
         run: |
@@ -60,4 +61,4 @@ jobs:
           go mod download
       - name: run unit tests
         run: |
-          go test -v ./usecase/fetchlgtmimages
+          go test -v  $(go list ./... | grep -v /lgtm-cat-migration/)
