@@ -224,7 +224,6 @@ func TestExtractRandomImagesConnectToDb(t *testing.T) {
 
 		// ランダムに抽出するので型のみテストする
 		for _, v := range res {
-			fmt.Println(v)
 			_, ok := interface{}(v).(domain.LgtmImage)
 			if !ok {
 				t.Fatalf("\nwant\n%T\ngot\n%T", v, domain.LgtmImage{})
