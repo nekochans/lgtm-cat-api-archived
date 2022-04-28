@@ -1,4 +1,7 @@
 # lgtm-cat-api
+[![ci](https://github.com/nekochans/lgtm-cat-api/actions/workflows/ci.yml/badge.svg)](https://github.com/nekochans/lgtm-cat-api/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/nekochans/lgtm-cat-api/branch/main/graph/badge.svg?token=BCZABFS4P0)](https://codecov.io/gh/nekochans/lgtm-cat-api)
+
 LGTMeowで利用するWebAPI
 
 ## Getting Started

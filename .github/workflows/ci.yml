@@ -59,5 +59,8 @@ jobs:
         run: |
           go mod download
       - name: run unit tests
-        run: |
-          go test -v  $(go list ./... | grep -v /lgtm-cat-migration/)
+        run: go test -v -race -coverprofile coverage.out -covermode atomic $(go list ./... | grep -v /lgtm-cat-migration/)
+      - name: upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+      - name: run go mod tidy
+        run: go mod tidy && git diff -s --exit-code go.sum
