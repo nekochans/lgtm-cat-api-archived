@@ -10,6 +10,10 @@ lint:
 format:
 	docker run --rm -v `pwd`:/app -w /app golangci/golangci-lint:v1.44.2 golangci-lint run -v --fix
 
+.PHONY: run-local
+run-local:
+	go run ./cmd/local
+
 .PHONY: deps
 deps:
 	go mod download
@@ -17,7 +21,7 @@ deps:
 
 .PHONY: build
 build: deps
-	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -trimpath -o bin/lambda
+	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -trimpath -o bin/lambda ./cmd/lambda/main.go
 
 .PHONY: zip
 zip: build
