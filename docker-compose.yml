@@ -8,9 +8,10 @@ services:
       target: build
     volumes:
       - ./:/go/app
-    command: air -c air.toml
+    command: air -c ${AIR_CONF}
     ports:
       - 3333:3333
+      - 2345:2345
     environment:
       DB_HOSTNAME: ${DB_HOSTNAME}
       DB_USERNAME: ${DB_USERNAME}
