@@ -4,14 +4,8 @@ WORKDIR /go/app
 COPY go.* .
 RUN go mod download
 COPY . .
+ARG AIR_VERSION=v1.40.2
 RUN set -eux && \
-  go build -o lgtm-cat-api ./cmd/local/main.go
-
-FROM alpine:3.15
-WORKDIR /app
-COPY --from=build /go/app/lgtm-cat-api .
-RUN set -x && \
-  addgroup go && \
-  adduser -D -G go go && \
-  chown -R go:go /app/lgtm-cat-api
-CMD ["./lgtm-cat-api"]
+  apk update && \
+  apk add --no-cache git && \
+  go install github.com/cosmtrek/air@${AIR_VERSION}

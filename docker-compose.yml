@@ -5,8 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: build
     volumes:
       - ./:/go/app
+    command: air -c air.toml
     ports:
       - 3333:3333
     environment:
