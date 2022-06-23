@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  go:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/go/app
+    ports:
+      - 3333:3333
+    environment:
+      DB_HOSTNAME: ${DB_HOSTNAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    networks:
+      - lgtm-cat
+networks:
+  lgtm-cat:
+    external: true
