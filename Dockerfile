@@ -17,3 +17,7 @@ RUN --mount=target=. \
   apk add --no-cache git && \
   go install github.com/cosmtrek/air@${AIR_VERSION} && \
   go install github.com/go-delve/delve/cmd/dlv@${DLV_VERSION}
+
+FROM base AS unit-test
+RUN --mount=target=. \
+  --mount=type=cache,target=/root/.cache/go-build

@@ -26,6 +26,13 @@ run-debug-build:
 run-debug:
 	AIR_CONF=air.debug.toml docker compose up dev --build -d
 
+.PHONY: test-build
+test-build:
+	docker compose up test --build
+
+.PHONY: test
+test:
+	docker compose up test
 .PHONY: deps
 deps:
 	go mod download
