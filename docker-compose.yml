@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  go:
+  dev:
     build:
       context: .
       dockerfile: Dockerfile
-      target: build
+      target: dev
     volumes:
       - ./:/go/app
     command: air -c ${AIR_CONF}

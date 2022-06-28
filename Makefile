@@ -10,13 +10,21 @@ lint:
 format:
 	docker run --rm -v `pwd`:/app -w /app golangci/golangci-lint:v1.44.2 golangci-lint run -v --fix
 
+.PHONY: run-normal-build
+run-normal-build:
+	AIR_CONF=air.normal.toml docker compose up dev --build -d
+
 .PHONY: run-normal
 run-normal:
-	AIR_CONF=air.normal.toml docker compose up --build -d
+	AIR_CONF=air.normal.toml docker compose up dev -d
+
+.PHONY: run-debug-build
+run-debug-build:
+	AIR_CONF=air.debug.toml docker compose up dev -d
 
 .PHONY: run-debug
 run-debug:
-	AIR_CONF=air.debug.toml docker compose up --build -d
+	AIR_CONF=air.debug.toml docker compose up dev --build -d
 
 .PHONY: deps
 deps:
