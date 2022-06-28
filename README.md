@@ -44,11 +44,13 @@ export DB_NAME=local_lgtm_cat
 ### Docker を起動
 下記のコマンドを実行することで、Docker で起動することができます。
 
-`make run-normal`
+- `make run-normal-build` build が必要な場合のみこちらを利用
+- `make run-normal`
 
 デバッカーを利用したい場合、は下記を実行してください。
 
-`run-debug`
+- `make run-debug-build` # build が必要な場合のみこちらを利用
+- `make run-debug`
 
 ### テスト
 
