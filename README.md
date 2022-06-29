@@ -18,6 +18,11 @@ AWS Lambda + Goで実装しています。
 
 ### ローカル上で Docker で動作させる
 
+#### 前提条件
+BuildKit を有効化してください。
+
+最新バージョン(20.10.16)ではデフォルトで有効になっていると思います。
+
 #### MySQL コンテナの起動
 下記のリポジトリの docker-compose を利用して MySQL のコンテナを起動。
 
@@ -44,11 +49,13 @@ export DB_NAME=local_lgtm_cat
 ### Docker を起動
 下記のコマンドを実行することで、Docker で起動することができます。
 
-`make run-normal`
+- `make run-normal-build` build が必要な場合のみこちらを利用
+- `make run-normal`
 
 デバッカーを利用したい場合、は下記を実行してください。
 
-`run-debug`
+- `make run-debug-build` # build が必要な場合のみこちらを利用
+- `make run-debug`
 
 ### テスト
 
@@ -56,9 +63,13 @@ export DB_NAME=local_lgtm_cat
 
 DBに接続できないとエラーとなるので、テストの実行前に下記の設定を行ってください。
 
-`ローカル上で Docker で動作させる`手順と同様に下記のリポジトリの docker-compose を利用して MySQL のコンテナを起動してください。
+- `ローカル上で Docker で動作させる`手順と同様に下記のリポジトリの docker-compose を利用して MySQL のコンテナを起動
 
 https://github.com/nekochans/lgtm-cat-migration
+
+- 下記のコマンドで、Docker 上でテストを実行
+  - `make test-build` # build が必要な場合のみこちらを利用
+  - `make test`
 
 ### デプロイ
 ローカルからデプロイする場合、下記のコマンドを実行してください。

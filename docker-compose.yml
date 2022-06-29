@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  go:
+  dev:
     build:
       context: .
       dockerfile: Dockerfile
-      target: build
+      target: dev
     volumes:
       - ./:/go/app
     command: air -c ${AIR_CONF}
@@ -17,6 +17,21 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+    networks:
+      - lgtm-cat
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: unit-test
+    volumes:
+      - ./:/go/app
+    command: go test -v ./...
+    environment:
+      TEST_DB_HOST: ${TEST_DB_HOST}
+      TEST_DB_USER: ${TEST_DB_USER}
+      TEST_DB_PASSWORD: ${TEST_DB_PASSWORD}
+      TEST_DB_NAME: ${TEST_DB_NAME}
     networks:
       - lgtm-cat
 networks:
