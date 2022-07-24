@@ -36,11 +36,11 @@ func (h *fetchImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	response := &ExtractRandomImagesResponse{LgtmImages: lgtmImages}
 	responseJson, _ := json.Marshal(response)
 	fmt.Fprint(w, string(responseJson))
-	w.WriteHeader(http.StatusOK)
-	w.Header().Add("Content-Type", "application/json")
 }
 
 func (h *fetchImagesHandler) RetrieveRecentlyCreated(w http.ResponseWriter, r *http.Request) {
@@ -51,9 +51,9 @@ func (h *fetchImagesHandler) RetrieveRecentlyCreated(w http.ResponseWriter, r *h
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	response := &RetrieveRecentlyCreatedImagesResponse{LgtmImages: lgtmImages}
 	responseJson, _ := json.Marshal(response)
 	fmt.Fprint(w, string(responseJson))
-	w.WriteHeader(http.StatusOK)
-	w.Header().Add("Content-Type", "application/json")
 }
