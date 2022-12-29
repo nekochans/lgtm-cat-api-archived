@@ -37,7 +37,7 @@ func (u *UseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*do
 
 	decodedImg, err := base64.StdEncoding.DecodeString(reqBody.Image)
 	if err != nil {
-		return nil, fmt.Errorf("faild to crete LGTM image: %w", &domain.ErrDecodeImage{Err: err})
+		return nil, fmt.Errorf("faild to crete LGTM image: %w", &domain.DecodeImageError{Err: err})
 	}
 
 	buffer := new(bytes.Buffer)
@@ -45,12 +45,12 @@ func (u *UseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*do
 
 	prefix, err := domain.BuildS3Prefix(time.Now().UTC())
 	if err != nil {
-		return nil, fmt.Errorf("faild to crete LGTM image: %w", &domain.ErrTimeLoadLocation{Err: err})
+		return nil, fmt.Errorf("faild to crete LGTM image: %w", &domain.TimeLoadLocationError{Err: err})
 	}
 
 	imageName, err := domain.GenerateImageName(u.idGenerator)
 	if err != nil {
-		return nil, fmt.Errorf("faild to crete LGTM image: %w", &domain.ErrGenerateImageName{Err: err})
+		return nil, fmt.Errorf("faild to crete LGTM image: %w", &domain.GenerateImageNameError{Err: err})
 	}
 
 	uploadS3param := domain.CreateUploadS3param(

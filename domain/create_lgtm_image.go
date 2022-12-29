@@ -11,27 +11,27 @@ var (
 	ErrInvalidImageExtension = errors.New("invalid image extension")
 )
 
-type ErrDecodeImage struct {
+type DecodeImageError struct {
 	Err error
 }
 
-func (e *ErrDecodeImage) Error() string {
+func (e *DecodeImageError) Error() string {
 	return fmt.Sprintf("failed to decode Base64 image, %s", e.Err)
 }
 
-type ErrGenerateImageName struct {
+type GenerateImageNameError struct {
 	Err error
 }
 
-func (e *ErrGenerateImageName) Error() string {
+func (e *GenerateImageNameError) Error() string {
 	return fmt.Sprintf("failed to generate image name, %s", e.Err)
 }
 
-type ErrTimeLoadLocation struct {
+type TimeLoadLocationError struct {
 	Err error
 }
 
-func (e *ErrTimeLoadLocation) Error() string {
+func (e *TimeLoadLocationError) Error() string {
 	return fmt.Sprintf("failed to Time LoadLocation, %s", e.Err)
 }
 
