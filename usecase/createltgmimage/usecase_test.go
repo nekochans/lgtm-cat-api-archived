@@ -131,7 +131,7 @@ func TestCreateLgtmImage(t *testing.T) {
 		if err == nil {
 			t.Fatal("expected to return an error, but no error")
 		}
-		var want *domain.ErrGenerateImageName
+		var want *domain.GenerateImageNameError
 		if !errors.As(err, &want) {
 			t.Errorf("\nwant\n%T\ngot\n%T", want, errors.Unwrap(err))
 		}
