@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -27,15 +26,8 @@ type CreateLgtmImageResponse struct {
 }
 
 func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) {
-	req, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		RenderErrorResponse(w, InternalServerError)
-		return
-	}
-
 	var reqBody createltgmimage.RequestBody
-	if err := json.Unmarshal(req, &reqBody); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
 		log.Println(err)
 		RenderErrorResponse(w, BadRequest)
 	}
