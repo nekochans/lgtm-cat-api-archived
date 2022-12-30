@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	db "github.com/nekochans/lgtm-cat-api/db/sqlc"
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
