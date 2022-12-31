@@ -16,15 +16,17 @@ import (
 var chiLambda *chiadapter.ChiLambda
 var uploader *manager.Uploader
 var queries *db.Queries
+var logger infrastructure.Logger
 
 func init() {
 	queries = infrastructure.NewSqlcQueries()
 	uploader = infrastructure.NewUploader()
+	logger = infrastructure.NewLogger()
 }
 
 func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	if chiLambda == nil {
-		r := handler.NewRouter(uploader, queries)
+		r := handler.NewRouter(uploader, queries, logger)
 		chiLambda = chiadapter.New(r)
 	}
 	return chiLambda.ProxyWithContext(ctx, req)

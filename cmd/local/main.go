@@ -13,12 +13,14 @@ import (
 
 var uploader *manager.Uploader
 var queries *db.Queries
+var logger infrastructure.Logger
 
 func main() {
 	queries = infrastructure.NewSqlcQueries()
 	uploader = infrastructure.NewUploader()
+	logger = infrastructure.NewLogger()
 
-	r := handler.NewRouter(uploader, queries)
+	r := handler.NewRouter(uploader, queries, logger)
 	err := http.ListenAndServe(":3333", r)
 	if err != nil {
 		log.Println(err)
