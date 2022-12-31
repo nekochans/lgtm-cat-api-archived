@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
@@ -29,9 +28,11 @@ type RetrieveRecentlyCreatedImagesResponse struct {
 }
 
 func (h *fetchImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
+	logger := extractLogger(r.Context())
+
 	lgtmImages, err := h.useCase.ExtractRandomImages(r.Context())
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 		RenderErrorResponse(w, InternalServerError)
 		return
 	}
@@ -44,9 +45,10 @@ func (h *fetchImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *fetchImagesHandler) RetrieveRecentlyCreated(w http.ResponseWriter, r *http.Request) {
+	logger := extractLogger(r.Context())
 	lgtmImages, err := h.useCase.RetrieveRecentlyCreatedImages(r.Context())
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 		RenderErrorResponse(w, InternalServerError)
 		return
 	}
