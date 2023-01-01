@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
@@ -26,9 +25,11 @@ type CreateLgtmImageResponse struct {
 }
 
 func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) {
+	logger := extractLogger(r.Context())
+
 	var reqBody createltgmimage.RequestBody
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		log.Println(err)
+		logger.Error(err)
 		RenderErrorResponse(w, BadRequest)
 	}
 
@@ -36,10 +37,10 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrInvalidImageExtension):
-			log.Println(err)
+			logger.Error(err)
 			RenderErrorResponse(w, UnprocessableEntity)
 		default:
-			log.Println(err)
+			logger.Error(err)
 			RenderErrorResponse(w, InternalServerError)
 		}
 
