@@ -30,3 +30,18 @@ func withLogger(logger infrastructure.Logger) func(next http.Handler) http.Handl
 func extractLogger(ctx context.Context) infrastructure.Logger {
 	return ctx.Value(logKey).(infrastructure.Logger)
 }
+
+func recovery(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if rvr := recover(); rvr != nil {
+				if rvr == http.ErrAbortHandler {
+					panic(rvr)
+				}
+				RenderErrorResponse(w, InternalServerError)
+			}
+		}()
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
