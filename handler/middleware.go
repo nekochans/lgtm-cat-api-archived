@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
@@ -38,7 +39,14 @@ func recovery(next http.Handler) http.Handler {
 				if rvr == http.ErrAbortHandler {
 					panic(rvr)
 				}
-				RenderErrorResponse(w, InternalServerError)
+
+				err, ok := rvr.(error)
+				if !ok {
+					err = fmt.Errorf("panic recover: %v", rvr)
+				}
+
+				logger := extractLogger(r.Context())
+				logger.Error(err)
 			}
 		}()
 		next.ServeHTTP(w, r)
