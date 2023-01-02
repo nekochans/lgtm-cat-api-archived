@@ -34,6 +34,7 @@ func NewRouter(uploader *manager.Uploader, q *db.Queries, logger infrastructure.
 		AllowCredentials: true,
 	}))
 	r.Use(withLogger(logger))
+	r.Use(recovery)
 
 	r.Post("/lgtm-images", createLgtmImageHandler.Create)
 	r.Get("/lgtm-images", extractRandomImagesHandler.Extract)

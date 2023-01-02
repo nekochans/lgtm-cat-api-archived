@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
@@ -29,4 +30,26 @@ func withLogger(logger infrastructure.Logger) func(next http.Handler) http.Handl
 
 func extractLogger(ctx context.Context) infrastructure.Logger {
 	return ctx.Value(logKey).(infrastructure.Logger)
+}
+
+func recovery(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if rvr := recover(); rvr != nil {
+				if rvr == http.ErrAbortHandler {
+					panic(rvr)
+				}
+
+				err, ok := rvr.(error)
+				if !ok {
+					err = fmt.Errorf("panic recover: %v", rvr)
+				}
+
+				logger := extractLogger(r.Context())
+				logger.Error(err)
+			}
+		}()
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
 }
