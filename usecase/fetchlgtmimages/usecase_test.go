@@ -132,7 +132,7 @@ func TestExtractRandomImages(t *testing.T) {
 			t.Fatal("expected to return an error, but no error")
 		}
 		if !errors.Is(err, domain.ErrRecordCount) {
-			t.Fatalf("\nwant\n%s\ngot\n%s", domain.ErrRecordCount, err)
+			t.Errorf("\nwant\n%s\ngot\n%s", domain.ErrRecordCount, err)
 		}
 	})
 

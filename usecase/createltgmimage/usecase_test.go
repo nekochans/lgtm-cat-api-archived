@@ -99,7 +99,7 @@ func TestCreateLgtmImage(t *testing.T) {
 			t.Fatal("expected to return an error, but no error")
 		}
 		if !errors.Is(err, domain.ErrInvalidImageExtension) {
-			t.Fatalf("\nwant\n%s\ngot\n%s", domain.ErrInvalidImageExtension, err)
+			t.Errorf("\nwant\n%s\ngot\n%s", domain.ErrInvalidImageExtension, err)
 		}
 	})
 
