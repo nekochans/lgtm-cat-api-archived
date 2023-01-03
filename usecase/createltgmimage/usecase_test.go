@@ -3,9 +3,10 @@ package createltgmimage
 import (
 	"context"
 	"errors"
-	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
 )
@@ -56,7 +57,7 @@ func TestCreateLgtmImage(t *testing.T) {
 			ImageExtension: ".png",
 		}
 		ctx := context.Background()
-		res, err := u.CreateLgtmImage(ctx, *r)
+		got, err := u.CreateLgtmImage(ctx, *r)
 		if err != nil {
 			t.Fatalf("unexpected err = %s", err)
 		}
@@ -66,8 +67,8 @@ func TestCreateLgtmImage(t *testing.T) {
 			Url: "https://" + u.cdnDomain + "/" + prefix + imageName + ".webp",
 		}
 
-		if reflect.DeepEqual(res, want) == false {
-			t.Errorf("\nwant\n%s\ngot\n%s", want, res)
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("CreateLgtmImage() value is mismatch (-want +got):\n%s", diff)
 		}
 	})
 
@@ -99,7 +100,7 @@ func TestCreateLgtmImage(t *testing.T) {
 			t.Fatal("expected to return an error, but no error")
 		}
 		if !errors.Is(err, domain.ErrInvalidImageExtension) {
-			t.Fatalf("\nwant\n%s\ngot\n%s", domain.ErrInvalidImageExtension, err)
+			t.Errorf("\nwant\n%s\ngot\n%s", domain.ErrInvalidImageExtension, err)
 		}
 	})
 
