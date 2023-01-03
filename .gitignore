@@ -23,3 +23,5 @@ lgtm-cat-api.iml
 
 # goenv setting files
 .go-version
+
+/.envrc
