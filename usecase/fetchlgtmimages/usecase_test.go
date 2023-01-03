@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 
 	sqlc "github.com/nekochans/lgtm-cat-api/db/sqlc"
 	"github.com/nekochans/lgtm-cat-api/domain"
@@ -89,7 +90,7 @@ func TestExtractRandomImages(t *testing.T) {
 		u := NewUseCase(mock, cdnDomain)
 
 		ctx := context.Background()
-		res, err := u.ExtractRandomImages(ctx)
+		got, err := u.ExtractRandomImages(ctx)
 		if err != nil {
 			t.Fatalf("unexpected err = %s", err)
 		}
@@ -102,8 +103,8 @@ func TestExtractRandomImages(t *testing.T) {
 			})
 		}
 
-		if reflect.DeepEqual(res, want) == false {
-			t.Errorf("\nwant\n%s\ngot\n%s", want, res)
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("ExtractRandomImages() value is mismatch (-want +got):\n%s", diff)
 		}
 	})
 
@@ -250,7 +251,7 @@ func TestRetrieveRecentlyCreatedImages(t *testing.T) {
 		u := NewUseCase(mock, cdnDomain)
 
 		ctx := context.Background()
-		res, err := u.RetrieveRecentlyCreatedImages(ctx)
+		got, err := u.RetrieveRecentlyCreatedImages(ctx)
 		if err != nil {
 			t.Fatalf("unexpected err = %s", err)
 		}
@@ -263,8 +264,8 @@ func TestRetrieveRecentlyCreatedImages(t *testing.T) {
 			})
 		}
 
-		if reflect.DeepEqual(res, want) == false {
-			t.Errorf("\nwant\n%s\ngot\n%s", want, res)
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("RetrieveRecentlyCreatedImages() value is mismatch (-want +got):\n%s", diff)
 		}
 	})
 
@@ -308,7 +309,7 @@ func TestRetrieveRecentlyCreatedImagesConnectToDb(t *testing.T) {
 		u := NewUseCase(lgtmImageRepository, cdnDomain)
 
 		ctx := context.Background()
-		res, err := u.RetrieveRecentlyCreatedImages(ctx)
+		got, err := u.RetrieveRecentlyCreatedImages(ctx)
 		if err != nil {
 			t.Fatalf("unexpected err = %s", err)
 		}
@@ -327,9 +328,8 @@ func TestRetrieveRecentlyCreatedImagesConnectToDb(t *testing.T) {
 				Url: "https://" + u.cdnDomain + "/" + "2022/02/02/" + dd + "/" + "filename" + fmt.Sprint(i) + ".webp",
 			})
 		}
-
-		if reflect.DeepEqual(res, want) == false {
-			t.Errorf("\nwant\n%s\ngot\n%s", want, res)
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("RetrieveRecentlyCreatedImages() value is mismatch (-want +got):\n%s", diff)
 		}
 	})
 }
