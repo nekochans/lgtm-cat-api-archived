@@ -40,8 +40,6 @@ var cdnDomain = "lgtm-images.lgtmeow.com"
 
 var testDb *sql.DB
 
-// Go1.15 から TestMain には os.Exit() のコールが不要になったのでlintのルールを無効化
-//nolint:staticcheck
 func TestMain(m *testing.M) {
 	dbCreator := &test.DbCreator{}
 	var err error
