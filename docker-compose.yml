@@ -26,7 +26,7 @@ services:
       target: unit-test
     volumes:
       - ./:/go/app
-    command: go test -v ./...
+    command: go test -shuffle=on -v ./...
     environment:
       TEST_DB_HOST: ${TEST_DB_HOST}
       TEST_DB_USER: ${TEST_DB_USER}
