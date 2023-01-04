@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.3
 
-FROM golang:1.16-alpine3.15 as base
+FROM golang:1.19-alpine3.15 as base
 LABEL maintainer="https://github.com/nekochans"
 WORKDIR /go/app
 ENV CGO_ENABLED=0
