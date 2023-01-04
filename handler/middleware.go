@@ -47,6 +47,8 @@ func recovery(next http.Handler) http.Handler {
 
 				logger := extractLogger(r.Context())
 				logger.Error(err)
+
+				RenderErrorResponse(w, InternalServerError)
 			}
 		}()
 		next.ServeHTTP(w, r)
