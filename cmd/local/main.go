@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	_ "github.com/go-sql-driver/mysql"
@@ -21,7 +22,14 @@ func main() {
 	logger = infrastructure.NewLogger()
 
 	r := handler.NewRouter(uploader, queries, logger)
-	err := http.ListenAndServe(":3333", r)
+
+	const timeoutSecond = 10
+	server := &http.Server{
+		Addr:              ":3333",
+		Handler:           r,
+		ReadHeaderTimeout: timeoutSecond * time.Second,
+	}
+	err := server.ListenAndServe()
 	if err != nil {
 		log.Println(err)
 		return
