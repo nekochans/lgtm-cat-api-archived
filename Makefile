@@ -4,11 +4,11 @@ sqlc-generate:
 
 .PHONY: lint
 lint:
-	docker run --rm -v `pwd`:/app -w /app golangci/golangci-lint:v1.44.2 golangci-lint run -v
+	docker run --rm -v `pwd`:/app -w /app golangci/golangci-lint:v1.50.1 golangci-lint run -v
 
 .PHONY: format
 format:
-	docker run --rm -v `pwd`:/app -w /app golangci/golangci-lint:v1.44.2 golangci-lint run -v --fix
+	docker run --rm -v `pwd`:/app -w /app golangci/golangci-lint:v1.50.1 golangci-lint run -v --fix
 
 .PHONY: run-normal-build
 run-normal-build:
