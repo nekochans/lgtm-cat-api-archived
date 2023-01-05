@@ -9,7 +9,7 @@ RUN go mod download
 
 FROM base AS dev
 ARG AIR_VERSION=v1.40.2
-ARG DLV_VERSION=v1.8.3
+ARG DLV_VERSION=v1.20.1
 RUN --mount=target=. \
   --mount=type=cache,target=/root/.cache/go-build \
   set -eux && \

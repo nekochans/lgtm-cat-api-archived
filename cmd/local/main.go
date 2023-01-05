@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -28,10 +29,20 @@ func main() {
 		Addr:              ":3333",
 		Handler:           r,
 		ReadHeaderTimeout: timeoutSecond * time.Second,
+		ErrorLog:          log.New(&logForwarder{l: logger}, "", 0),
 	}
 	err := server.ListenAndServe()
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 		return
 	}
+}
+
+type logForwarder struct {
+	l infrastructure.Logger
+}
+
+func (fw *logForwarder) Write(p []byte) (int, error) {
+	fw.l.Error(errors.New(string(p)))
+	return len(p), nil
 }
