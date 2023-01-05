@@ -33,7 +33,7 @@ func main() {
 	}
 	err := server.ListenAndServe()
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 		return
 	}
 }
