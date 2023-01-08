@@ -2,7 +2,6 @@ package fetchlgtmimages
 
 import (
 	"context"
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -75,10 +74,12 @@ func (u *UseCase) ExtractRandomImages(ctx context.Context) (randomImages []domai
 	return lgtmImages, nil
 }
 
-func (u *UseCase) RetrieveRecentlyCreatedImages(ctx context.Context) ([]domain.LgtmImage, error) {
+func (u *UseCase) RetrieveRecentlyCreatedImages(ctx context.Context) (recentlyImages []domain.LgtmImage, err error) {
+	defer derrors.Wrap(&err, "UseCase.RetrieveRecentlyCreatedImages()")
+
 	rows, err := u.repository.FindRecentlyCreated(ctx, domain.FetchLgtmImageCount)
 	if err != nil {
-		return nil, fmt.Errorf("faild to retrieve recently created images: %w", err)
+		return nil, err
 	}
 
 	var lgtmImages []domain.LgtmImage

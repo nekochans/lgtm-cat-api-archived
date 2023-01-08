@@ -67,16 +67,18 @@ func (r *lgtmImageRepository) FindByIds(
 	return lgtmImage, nil
 }
 
-func (r *lgtmImageRepository) FindRecentlyCreated(c context.Context, count int) ([]domain.LgtmImageObject, error) {
+func (r *lgtmImageRepository) FindRecentlyCreated(
+	c context.Context,
+	count int,
+) (lgtmImageObjects []domain.LgtmImageObject, err error) {
+	defer derrors.Wrap(&err, "lgtmImageRepository.FindRecentlyCreated(%v)", count)
+
 	ctx, cancel := context.WithTimeout(c, dbTimeoutSecond*time.Second)
 	defer cancel()
 
 	rows, err := r.db.ListRecentlyCreatedLgtmImages(ctx, int32(count))
 	if err != nil {
-		return nil, &domain.LgtmImageError{
-			Op:  "FindRecentlyCreated",
-			Err: err,
-		}
+		return nil, err
 	}
 
 	var lgtmImage []domain.LgtmImageObject

@@ -256,10 +256,7 @@ func TestRetrieveRecentlyCreatedImages(t *testing.T) {
 	t.Run("Failure find recently created images", func(t *testing.T) {
 		mock := &mockLgtmImageRepository{
 			FakeFindRecentlyCreated: func(context.Context, int) ([]domain.LgtmImageObject, error) {
-				return nil, &domain.LgtmImageError{
-					Op:  "FindRecentlyCreated",
-					Err: errors.New("FindRecentlyCreated dummy error"),
-				}
+				return nil, errors.New("FindRecentlyCreated dummy error")
 			},
 		}
 		u := NewUseCase(mock, cdnDomain)
@@ -268,10 +265,6 @@ func TestRetrieveRecentlyCreatedImages(t *testing.T) {
 		_, err := u.RetrieveRecentlyCreatedImages(ctx)
 		if err == nil {
 			t.Fatal("expected to return an error, but no error")
-		}
-		var want *domain.LgtmImageError
-		if !errors.As(err, &want) {
-			t.Errorf("\nwant\n%T\ngot\n%T", want, errors.Unwrap(err))
 		}
 	})
 }
