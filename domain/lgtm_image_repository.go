@@ -6,8 +6,8 @@ import (
 )
 
 type LgtmImageRepository interface {
-	FindAllIds(context.Context) ([]int32, error)
-	FindByIds(context.Context, []int32) ([]LgtmImageObject, error)
+	FindAllIds(context.Context) (allIds []int32, err error)
+	FindByIds(context.Context, []int32) (lgtmImageObjects []LgtmImageObject, err error)
 	FindRecentlyCreated(context.Context, int) ([]LgtmImageObject, error)
 }
 

@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/nekochans/lgtm-cat-api/derrors"
 	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
@@ -47,10 +48,12 @@ func pickupRandomIdsNoDuplicates(ids []int32, listCount int) []int32 {
 	return randomIds
 }
 
-func (u *UseCase) ExtractRandomImages(ctx context.Context) ([]domain.LgtmImage, error) {
+func (u *UseCase) ExtractRandomImages(ctx context.Context) (randomImages []domain.LgtmImage, err error) {
+	defer derrors.Wrap(&err, "UseCase.ExtractRandomImages()")
+
 	ids, err := u.repository.FindAllIds(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("faild to extract randam images: %w", err)
+		return nil, err
 	}
 	if len(ids) < domain.FetchLgtmImageCount {
 		return nil, domain.ErrRecordCount
@@ -60,7 +63,7 @@ func (u *UseCase) ExtractRandomImages(ctx context.Context) ([]domain.LgtmImage, 
 
 	rows, err := u.repository.FindByIds(ctx, randomIds)
 	if err != nil {
-		return nil, fmt.Errorf("faild to extract randam images: %w", err)
+		return nil, err
 	}
 
 	var lgtmImages []domain.LgtmImage

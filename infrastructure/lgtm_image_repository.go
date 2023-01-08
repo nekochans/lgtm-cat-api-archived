@@ -5,6 +5,7 @@ import (
 	"time"
 
 	db "github.com/nekochans/lgtm-cat-api/db/sqlc"
+	"github.com/nekochans/lgtm-cat-api/derrors"
 	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
@@ -18,22 +19,26 @@ func NewLgtmImageRepository(db *db.Queries) *lgtmImageRepository {
 	return &lgtmImageRepository{db: db}
 }
 
-func (r *lgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
+func (r *lgtmImageRepository) FindAllIds(c context.Context) (allIds []int32, err error) {
+	defer derrors.Wrap(&err, "lgtmImageRepository.FindAllIds()")
+
 	ctx, cancel := context.WithTimeout(c, dbTimeoutSecond*time.Second)
 	defer cancel()
 
 	ids, err := r.db.ListLgtmImageIds(ctx)
 	if err != nil {
-		return nil, &domain.LgtmImageError{
-			Op:  "FindAllIds",
-			Err: err,
-		}
+		return nil, err
 	}
 
 	return ids, nil
 }
 
-func (r *lgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]domain.LgtmImageObject, error) {
+func (r *lgtmImageRepository) FindByIds(
+	c context.Context,
+	ids []int32,
+) (lgtmImageObjects []domain.LgtmImageObject, err error) {
+	defer derrors.Wrap(&err, "lgtmImageRepository.FindByIds(%v)", ids)
+
 	ctx, cancel := context.WithTimeout(c, dbTimeoutSecond*time.Second)
 	defer cancel()
 
@@ -51,10 +56,7 @@ func (r *lgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]domai
 
 	rows, err := r.db.ListLgtmImages(ctx, listLgtmImagesParams)
 	if err != nil {
-		return nil, &domain.LgtmImageError{
-			Op:  "FindByIds",
-			Err: err,
-		}
+		return nil, err
 	}
 
 	var lgtmImage []domain.LgtmImageObject

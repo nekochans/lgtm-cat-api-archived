@@ -138,10 +138,7 @@ func TestExtractRandomImages(t *testing.T) {
 	t.Run("Failure find all ids", func(t *testing.T) {
 		mock := &mockLgtmImageRepository{
 			FakeFindAllIds: func(context.Context) ([]int32, error) {
-				return nil, &domain.LgtmImageError{
-					Op:  "FindAllIds",
-					Err: errors.New("FindAllIds dummy error"),
-				}
+				return nil, errors.New("FindAllIds dummy error")
 			},
 			FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
 				return nil, nil
@@ -155,13 +152,9 @@ func TestExtractRandomImages(t *testing.T) {
 		if err == nil {
 			t.Fatal("expected to return an error, but no error")
 		}
-		var want *domain.LgtmImageError
-		if !errors.As(err, &want) {
-			t.Errorf("\nwant\n%T\ngot\n%T", want, errors.Unwrap(err))
-		}
 	})
 
-	t.Run("Failure find all ids", func(t *testing.T) {
+	t.Run("Failure find by ids", func(t *testing.T) {
 		var findAllIdsResponse []int32
 		for i := 1; i <= domain.FetchLgtmImageCount; i++ {
 			findAllIdsResponse = append(
@@ -175,10 +168,7 @@ func TestExtractRandomImages(t *testing.T) {
 				return findAllIdsResponse, nil
 			},
 			FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
-				return nil, &domain.LgtmImageError{
-					Op:  "FindByIds",
-					Err: errors.New("FindByIds dummy error"),
-				}
+				return nil, errors.New("FindByIds dummy error")
 			},
 		}
 
@@ -188,10 +178,6 @@ func TestExtractRandomImages(t *testing.T) {
 		_, err := u.ExtractRandomImages(ctx)
 		if err == nil {
 			t.Fatal("expected to return an error, but no error")
-		}
-		var want *domain.LgtmImageError
-		if !errors.As(err, &want) {
-			t.Errorf("\nwant\n%T\ngot\n%T", want, errors.Unwrap(err))
 		}
 	})
 }
