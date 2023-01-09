@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"fmt"
 	"time"
 
+	"github.com/nekochans/lgtm-cat-api/derrors"
 	"github.com/nekochans/lgtm-cat-api/domain"
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
 )
@@ -30,14 +30,19 @@ type RequestBody struct {
 	ImageExtension string `json:"imageExtension"`
 }
 
-func (u *UseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*domain.UploadedLgtmImage, error) {
+func (u *UseCase) CreateLgtmImage(
+	ctx context.Context,
+	reqBody RequestBody,
+) (uploadedLgtmImage *domain.UploadedLgtmImage, err error) {
+	defer derrors.Wrap(&err, "UseCase.CreateLgtmImage(reqBody.ImageExtension: %+v)", reqBody.ImageExtension)
+
 	if !domain.CanConvertImageExtension(reqBody.ImageExtension) {
-		return nil, fmt.Errorf("faild to crete LGTM image: %w", domain.ErrInvalidImageExtension)
+		return nil, domain.ErrInvalidImageExtension
 	}
 
 	decodedImg, err := base64.StdEncoding.DecodeString(reqBody.Image)
 	if err != nil {
-		return nil, fmt.Errorf("faild to crete LGTM image: %w", &domain.DecodeImageError{Err: err})
+		return nil, err
 	}
 
 	buffer := new(bytes.Buffer)
@@ -45,12 +50,12 @@ func (u *UseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*do
 
 	prefix, err := domain.BuildS3Prefix(time.Now().UTC())
 	if err != nil {
-		return nil, fmt.Errorf("faild to crete LGTM image: %w", &domain.TimeLoadLocationError{Err: err})
+		return nil, err
 	}
 
 	imageName, err := domain.GenerateImageName(u.idGenerator)
 	if err != nil {
-		return nil, fmt.Errorf("faild to crete LGTM image: %w", &domain.GenerateImageNameError{Err: err})
+		return nil, err
 	}
 
 	uploadS3param := domain.CreateUploadS3param(
@@ -62,7 +67,7 @@ func (u *UseCase) CreateLgtmImage(ctx context.Context, reqBody RequestBody) (*do
 
 	err = u.repository.Upload(ctx, uploadS3param)
 	if err != nil {
-		return nil, fmt.Errorf("faild to crete LGTM image: %w", err)
+		return nil, err
 	}
 
 	return domain.CreateUploadedLgtmImage(u.cdnDomain, prefix, imageName), nil

@@ -132,19 +132,12 @@ func TestCreateLgtmImage(t *testing.T) {
 		if err == nil {
 			t.Fatal("expected to return an error, but no error")
 		}
-		var want *domain.GenerateImageNameError
-		if !errors.As(err, &want) {
-			t.Errorf("\nwant\n%T\ngot\n%T", want, errors.Unwrap(err))
-		}
 	})
 
 	t.Run("Failure upload image to s3", func(t *testing.T) {
 		s3Mock := &mockS3Repository{
 			FakeUpload: func(context.Context, *domain.UploadS3param) error {
-				return &domain.S3Error{
-					Op:  "Upload",
-					Err: errors.New("s3 upload dummy error"),
-				}
+				return errors.New("s3 upload dummy error")
 			},
 		}
 		idGenMock := &mockUniqueIdGenerator{
@@ -167,10 +160,6 @@ func TestCreateLgtmImage(t *testing.T) {
 		_, err := u.CreateLgtmImage(ctx, *r)
 		if err == nil {
 			t.Fatal("expected to return an error, but no error")
-		}
-		var want *domain.S3Error
-		if !errors.As(err, &want) {
-			t.Errorf("\nwant\n%T\ngot\n%T", want, errors.Unwrap(err))
 		}
 	})
 }
