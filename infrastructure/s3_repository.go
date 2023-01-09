@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/nekochans/lgtm-cat-api/derrors"
 	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
@@ -31,7 +32,9 @@ func decideS3ContentType(ext string) string {
 
 	return contentType
 }
-func (r *s3Repository) Upload(c context.Context, param *domain.UploadS3param) error {
+func (r *s3Repository) Upload(c context.Context, param *domain.UploadS3param) (err error) {
+	defer derrors.Wrap(&err, "s3Repository.Upload(%+v)", param)
+
 	const s3timeoutSecond = 10
 	ctx, cancel := context.WithTimeout(c, s3timeoutSecond*time.Second)
 	defer cancel()
@@ -43,12 +46,9 @@ func (r *s3Repository) Upload(c context.Context, param *domain.UploadS3param) er
 		Key:         aws.String(param.Key),
 	}
 
-	_, err := r.uploader.Upload(ctx, input)
+	_, err = r.uploader.Upload(ctx, input)
 	if err != nil {
-		return &domain.S3Error{
-			Op:  "Upload",
-			Err: err,
-		}
+		return err
 	}
 
 	return nil

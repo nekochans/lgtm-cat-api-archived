@@ -3,37 +3,14 @@ package domain
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"time"
+
+	"github.com/nekochans/lgtm-cat-api/derrors"
 )
 
 var (
 	ErrInvalidImageExtension = errors.New("invalid image extension")
 )
-
-type DecodeImageError struct {
-	Err error
-}
-
-func (e *DecodeImageError) Error() string {
-	return fmt.Sprintf("failed to decode Base64 image, %s", e.Err)
-}
-
-type GenerateImageNameError struct {
-	Err error
-}
-
-func (e *GenerateImageNameError) Error() string {
-	return fmt.Sprintf("failed to generate image name, %s", e.Err)
-}
-
-type TimeLoadLocationError struct {
-	Err error
-}
-
-func (e *TimeLoadLocationError) Error() string {
-	return fmt.Sprintf("failed to Time LoadLocation, %s", e.Err)
-}
 
 type UploadedLgtmImage struct {
 	Url string
@@ -62,11 +39,15 @@ func CanConvertImageExtension(ext string) bool {
 	return true
 }
 
-func GenerateImageName(u UniqueIdGenerator) (string, error) {
+func GenerateImageName(u UniqueIdGenerator) (imageName string, err error) {
+	defer derrors.Wrap(&err, "GenerateImageName()")
+
 	return u.Generate()
 }
 
-func BuildS3Prefix(t time.Time) (string, error) {
+func BuildS3Prefix(t time.Time) (prefix string, err error) {
+	defer derrors.Wrap(&err, "BuildS3Prefix(%+v)", t)
+
 	tokyo, err := time.LoadLocation("Asia/Tokyo")
 	if err != nil {
 		return "", err
