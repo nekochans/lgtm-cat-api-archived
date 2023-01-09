@@ -40,6 +40,43 @@ var cdnDomain = "lgtm-images.lgtmeow.com"
 
 var testDb *sql.DB
 
+var mockErr = errors.New("mock error")
+
+func createFindAllIdsResponse(len int) []int32 {
+	var findAllIdsResponse []int32
+	for i := 1; i <= len; i++ {
+		findAllIdsResponse = append(
+			findAllIdsResponse,
+			int32(i),
+		)
+	}
+
+	return findAllIdsResponse
+}
+
+func createLgtmImageObjects(len int) []domain.LgtmImageObject {
+	var findByIdsMockResponse []domain.LgtmImageObject
+	for i := 1; i < len; i++ {
+		findByIdsMockResponse = append(
+			findByIdsMockResponse,
+			domain.LgtmImageObject{Id: int32(i), Path: "2022/02/22/22", Filename: "image-name" + fmt.Sprint(i)})
+	}
+
+	return findByIdsMockResponse
+}
+
+func createLgtmImages(imageObjects []domain.LgtmImageObject) []domain.LgtmImage {
+	var images []domain.LgtmImage
+	for _, v := range imageObjects {
+		images = append(images, domain.LgtmImage{
+			Id:  fmt.Sprint(v.Id),
+			Url: "https://" + cdnDomain + "/" + v.Path + "/" + v.Filename + ".webp",
+		})
+	}
+
+	return images
+}
+
 func TestMain(m *testing.M) {
 	dbCreator := &test.DbCreator{}
 	var err error
@@ -61,126 +98,92 @@ func TestMain(m *testing.M) {
 
 //nolint:funlen
 func TestExtractRandomImages(t *testing.T) {
-	t.Run("Success extract random images", func(t *testing.T) {
-		var findAllIdsResponse []int32
-		for i := 1; i <= domain.FetchLgtmImageCount; i++ {
-			findAllIdsResponse = append(
-				findAllIdsResponse,
-				int32(i),
-			)
-		}
+	var findByIdsMockResponse = createLgtmImageObjects(20)
+	var want = createLgtmImages(findByIdsMockResponse)
 
-		var findByIdsMockResponse []domain.LgtmImageObject
-		for i := 1; i < 20; i++ {
-			findByIdsMockResponse = append(
-				findByIdsMockResponse,
-				domain.LgtmImageObject{Id: int32(i), Path: "2022/02/22/22", Filename: "image-name" + fmt.Sprint(i)})
-		}
-
-		mock := &mockLgtmImageRepository{
-			FakeFindAllIds: func(context.Context) ([]int32, error) {
-				return findAllIdsResponse, nil
+	cases := []struct {
+		name      string
+		mock      *mockLgtmImageRepository
+		want      []domain.LgtmImage
+		expectErr error
+	}{
+		{
+			name: "Success create LGTM image",
+			mock: &mockLgtmImageRepository{
+				FakeFindAllIds: func(context.Context) ([]int32, error) {
+					return createFindAllIdsResponse(domain.FetchLgtmImageCount), nil
+				},
+				FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
+					return findByIdsMockResponse, nil
+				},
 			},
-			FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
-				return findByIdsMockResponse, nil
+			want:      want,
+			expectErr: nil,
+		},
+		{
+			name: "Failure error record count",
+			mock: &mockLgtmImageRepository{
+				FakeFindAllIds: func(context.Context) ([]int32, error) {
+					return createFindAllIdsResponse(domain.FetchLgtmImageCount - 1), nil
+				},
 			},
-		}
-		u := NewUseCase(mock, cdnDomain)
-
-		ctx := context.Background()
-		got, err := u.ExtractRandomImages(ctx)
-		if err != nil {
-			t.Fatalf("unexpected err = %s", err)
-		}
-
-		var want []domain.LgtmImage
-		for _, v := range findByIdsMockResponse {
-			want = append(want, domain.LgtmImage{
-				Id:  fmt.Sprint(v.Id),
-				Url: "https://" + u.cdnDomain + "/" + v.Path + "/" + v.Filename + ".webp",
-			})
-		}
-
-		if diff := cmp.Diff(want, got); diff != "" {
-			t.Errorf("ExtractRandomImages() value is mismatch (-want +got):\n%s", diff)
-		}
-	})
-
-	t.Run("Failure error record count", func(t *testing.T) {
-		var findAllIdsResponse []int32
-		for i := 1; i <= domain.FetchLgtmImageCount-1; i++ {
-			findAllIdsResponse = append(
-				findAllIdsResponse,
-				int32(i),
-			)
-		}
-
-		mock := &mockLgtmImageRepository{
-			FakeFindAllIds: func(context.Context) ([]int32, error) {
-				return findAllIdsResponse, nil
+			want:      nil,
+			expectErr: domain.ErrRecordCount,
+		},
+		{
+			name: "Failure find all ids",
+			mock: &mockLgtmImageRepository{
+				FakeFindAllIds: func(context.Context) ([]int32, error) {
+					return nil, mockErr
+				},
 			},
-			FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
-				return nil, nil
+			want:      nil,
+			expectErr: mockErr,
+		},
+		{
+			name: "Failure find by ids",
+			mock: &mockLgtmImageRepository{
+				FakeFindAllIds: func(context.Context) ([]int32, error) {
+					return createFindAllIdsResponse(domain.FetchLgtmImageCount), nil
+				},
+				FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
+					return nil, mockErr
+				},
 			},
-		}
-		u := NewUseCase(mock, cdnDomain)
+			want:      nil,
+			expectErr: mockErr,
+		},
+	}
 
-		ctx := context.Background()
-		_, err := u.ExtractRandomImages(ctx)
-		if err == nil {
-			t.Fatal("expected to return an error, but no error")
-		}
-		if !errors.Is(err, domain.ErrRecordCount) {
-			t.Errorf("\nwant\n%s\ngot\n%s", domain.ErrRecordCount, err)
-		}
-	})
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	t.Run("Failure find all ids", func(t *testing.T) {
-		mock := &mockLgtmImageRepository{
-			FakeFindAllIds: func(context.Context) ([]int32, error) {
-				return nil, errors.New("FindAllIds dummy error")
-			},
-			FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
-				return nil, nil
-			},
-		}
+			mock := tt.mock
+			u := NewUseCase(mock, cdnDomain)
 
-		u := NewUseCase(mock, cdnDomain)
-
-		ctx := context.Background()
-		_, err := u.ExtractRandomImages(ctx)
-		if err == nil {
-			t.Fatal("expected to return an error, but no error")
-		}
-	})
-
-	t.Run("Failure find by ids", func(t *testing.T) {
-		var findAllIdsResponse []int32
-		for i := 1; i <= domain.FetchLgtmImageCount; i++ {
-			findAllIdsResponse = append(
-				findAllIdsResponse,
-				int32(i),
-			)
-		}
-
-		mock := &mockLgtmImageRepository{
-			FakeFindAllIds: func(context.Context) ([]int32, error) {
-				return findAllIdsResponse, nil
-			},
-			FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
-				return nil, errors.New("FindByIds dummy error")
-			},
-		}
-
-		u := NewUseCase(mock, cdnDomain)
-
-		ctx := context.Background()
-		_, err := u.ExtractRandomImages(ctx)
-		if err == nil {
-			t.Fatal("expected to return an error, but no error")
-		}
-	})
+			ctx := context.Background()
+			got, err := u.ExtractRandomImages(ctx)
+			if tt.expectErr != nil {
+				if err == nil {
+					t.Fatal("expected to return an error, but no error")
+				}
+				if !errors.Is(err, tt.expectErr) {
+					t.Errorf("\nwant\n%#v\ngot\n%#v", tt.expectErr, err)
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected err = %s", err)
+				}
+				if diff := cmp.Diff(tt.want, got); diff != "" {
+					t.Errorf("ExtractRandomImages() value is mismatch (-want +got):\n%s", diff)
+				}
+			}
+		})
+	}
 }
+
 func TestExtractRandomImagesConnectToDb(t *testing.T) {
 	t.Run("Success extract random images", func(t *testing.T) {
 		testDataDir, err := filepath.Abs("./testdata")
@@ -219,54 +222,64 @@ func TestExtractRandomImagesConnectToDb(t *testing.T) {
 }
 
 func TestRetrieveRecentlyCreatedImages(t *testing.T) {
-	t.Run("Success retrieve recently created images", func(t *testing.T) {
-		var findRecentlyCreatedResponse []domain.LgtmImageObject
-		for i := 1; i < 20; i++ {
-			findRecentlyCreatedResponse = append(
-				findRecentlyCreatedResponse,
-				domain.LgtmImageObject{Id: int32(i), Path: "2022/02/22/22", Filename: "image-name" + fmt.Sprint(i)})
-		}
+	var findRecentlyCreatedResponse = createLgtmImageObjects(20)
+	var want = createLgtmImages(findRecentlyCreatedResponse)
 
-		mock := &mockLgtmImageRepository{
-			FakeFindRecentlyCreated: func(context.Context, int) ([]domain.LgtmImageObject, error) {
-				return findRecentlyCreatedResponse, nil
+	cases := []struct {
+		name      string
+		mock      *mockLgtmImageRepository
+		want      []domain.LgtmImage
+		expectErr error
+	}{
+		{
+			name: "Success create LGTM image",
+			mock: &mockLgtmImageRepository{
+				FakeFindRecentlyCreated: func(context.Context, int) ([]domain.LgtmImageObject, error) {
+					return findRecentlyCreatedResponse, nil
+				},
 			},
-		}
-		u := NewUseCase(mock, cdnDomain)
-
-		ctx := context.Background()
-		got, err := u.RetrieveRecentlyCreatedImages(ctx)
-		if err != nil {
-			t.Fatalf("unexpected err = %s", err)
-		}
-
-		var want []domain.LgtmImage
-		for _, v := range findRecentlyCreatedResponse {
-			want = append(want, domain.LgtmImage{
-				Id:  fmt.Sprint(v.Id),
-				Url: "https://" + u.cdnDomain + "/" + v.Path + "/" + v.Filename + ".webp",
-			})
-		}
-
-		if diff := cmp.Diff(want, got); diff != "" {
-			t.Errorf("RetrieveRecentlyCreatedImages() value is mismatch (-want +got):\n%s", diff)
-		}
-	})
-
-	t.Run("Failure find recently created images", func(t *testing.T) {
-		mock := &mockLgtmImageRepository{
-			FakeFindRecentlyCreated: func(context.Context, int) ([]domain.LgtmImageObject, error) {
-				return nil, errors.New("FindRecentlyCreated dummy error")
+			want:      want,
+			expectErr: nil,
+		},
+		{
+			name: "Failure find recently created images",
+			mock: &mockLgtmImageRepository{
+				FakeFindRecentlyCreated: func(context.Context, int) ([]domain.LgtmImageObject, error) {
+					return nil, mockErr
+				},
 			},
-		}
-		u := NewUseCase(mock, cdnDomain)
+			want:      nil,
+			expectErr: mockErr,
+		},
+	}
 
-		ctx := context.Background()
-		_, err := u.RetrieveRecentlyCreatedImages(ctx)
-		if err == nil {
-			t.Fatal("expected to return an error, but no error")
-		}
-	})
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			mock := tt.mock
+			u := NewUseCase(mock, cdnDomain)
+
+			ctx := context.Background()
+			got, err := u.RetrieveRecentlyCreatedImages(ctx)
+			if tt.expectErr != nil {
+				if err == nil {
+					t.Fatal("expected to return an error, but no error")
+				}
+				if !errors.Is(err, tt.expectErr) {
+					t.Errorf("\nwant\n%#v\ngot\n%#v", tt.expectErr, err)
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected err = %s", err)
+				}
+				if diff := cmp.Diff(tt.want, got); diff != "" {
+					t.Errorf("RetrieveRecentlyCreatedImages() value is mismatch (-want +got):\n%s", diff)
+				}
+			}
+		})
+	}
 }
 
 func TestRetrieveRecentlyCreatedImagesConnectToDb(t *testing.T) {
