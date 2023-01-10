@@ -17,25 +17,6 @@ import (
 	"github.com/nekochans/lgtm-cat-api/test"
 )
 
-type mockLgtmImageRepository struct {
-	domain.LgtmImageRepository
-	FakeFindAllIds          func(context.Context) ([]int32, error)
-	FakeFindByIds           func(context.Context, []int32) ([]domain.LgtmImageObject, error)
-	FakeFindRecentlyCreated func(context.Context, int) ([]domain.LgtmImageObject, error)
-}
-
-func (m *mockLgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
-	return m.FakeFindAllIds(c)
-}
-
-func (m *mockLgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]domain.LgtmImageObject, error) {
-	return m.FakeFindByIds(c, ids)
-}
-
-func (m *mockLgtmImageRepository) FindRecentlyCreated(c context.Context, count int) ([]domain.LgtmImageObject, error) {
-	return m.FakeFindRecentlyCreated(c, count)
-}
-
 var cdnDomain = "lgtm-images.lgtmeow.com"
 
 var testDb *sql.DB

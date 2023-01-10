@@ -11,24 +11,6 @@ import (
 	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
-type mockUniqueIdGenerator struct {
-	domain.UniqueIdGenerator
-	FakeGenerate func() (string, error)
-}
-
-func (d *mockUniqueIdGenerator) Generate() (string, error) {
-	return d.FakeGenerate()
-}
-
-type mockS3Repository struct {
-	domain.S3Repository
-	FakeUpload func(context.Context, *domain.UploadS3param) error
-}
-
-func (d *mockS3Repository) Upload(c context.Context, u *domain.UploadS3param) error {
-	return d.FakeUpload(c, u)
-}
-
 //nolint:funlen
 func TestCreateLgtmImage(t *testing.T) {
 	imageName := "test-image-name"
