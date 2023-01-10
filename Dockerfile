@@ -10,13 +10,15 @@ RUN go mod download
 FROM base AS dev
 ARG AIR_VERSION=v1.40.2
 ARG DLV_VERSION=v1.20.1
+ARG MOQ_VERSION=v0.3.0
 RUN --mount=target=. \
   --mount=type=cache,target=/root/.cache/go-build \
   set -eux && \
   apk update && \
   apk add --no-cache git && \
   go install github.com/cosmtrek/air@${AIR_VERSION} && \
-  go install github.com/go-delve/delve/cmd/dlv@${DLV_VERSION}
+  go install github.com/go-delve/delve/cmd/dlv@${DLV_VERSION} && \
+  go install github.com/matryer/moq@${MOQ_VERSION}
 
 FROM base AS unit-test
 RUN --mount=target=. \

@@ -17,25 +17,6 @@ import (
 	"github.com/nekochans/lgtm-cat-api/test"
 )
 
-type mockLgtmImageRepository struct {
-	domain.LgtmImageRepository
-	FakeFindAllIds          func(context.Context) ([]int32, error)
-	FakeFindByIds           func(context.Context, []int32) ([]domain.LgtmImageObject, error)
-	FakeFindRecentlyCreated func(context.Context, int) ([]domain.LgtmImageObject, error)
-}
-
-func (m *mockLgtmImageRepository) FindAllIds(c context.Context) ([]int32, error) {
-	return m.FakeFindAllIds(c)
-}
-
-func (m *mockLgtmImageRepository) FindByIds(c context.Context, ids []int32) ([]domain.LgtmImageObject, error) {
-	return m.FakeFindByIds(c, ids)
-}
-
-func (m *mockLgtmImageRepository) FindRecentlyCreated(c context.Context, count int) ([]domain.LgtmImageObject, error) {
-	return m.FakeFindRecentlyCreated(c, count)
-}
-
 var cdnDomain = "lgtm-images.lgtmeow.com"
 
 var testDb *sql.DB
@@ -102,53 +83,46 @@ func TestExtractRandomImages(t *testing.T) {
 	var want = createLgtmImages(findByIdsMockResponse)
 
 	cases := []struct {
-		name      string
-		mock      *mockLgtmImageRepository
-		want      []domain.LgtmImage
-		expectErr error
+		name           string
+		findAllIdsFunc func(contextMoqParam context.Context) ([]int32, error)
+		findByIdsFunc  func(contextMoqParam context.Context, int32s []int32) ([]domain.LgtmImageObject, error)
+		want           []domain.LgtmImage
+		expectErr      error
 	}{
 		{
 			name: "Success create LGTM image",
-			mock: &mockLgtmImageRepository{
-				FakeFindAllIds: func(context.Context) ([]int32, error) {
-					return createFindAllIdsResponse(domain.FetchLgtmImageCount), nil
-				},
-				FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
-					return findByIdsMockResponse, nil
-				},
+			findAllIdsFunc: func(context.Context) ([]int32, error) {
+				return createFindAllIdsResponse(domain.FetchLgtmImageCount), nil
+			},
+			findByIdsFunc: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
+				return findByIdsMockResponse, nil
 			},
 			want:      want,
 			expectErr: nil,
 		},
 		{
 			name: "Failure error record count",
-			mock: &mockLgtmImageRepository{
-				FakeFindAllIds: func(context.Context) ([]int32, error) {
-					return createFindAllIdsResponse(domain.FetchLgtmImageCount - 1), nil
-				},
+			findAllIdsFunc: func(context.Context) ([]int32, error) {
+				return createFindAllIdsResponse(domain.FetchLgtmImageCount - 1), nil
 			},
 			want:      nil,
 			expectErr: domain.ErrRecordCount,
 		},
 		{
 			name: "Failure find all ids",
-			mock: &mockLgtmImageRepository{
-				FakeFindAllIds: func(context.Context) ([]int32, error) {
-					return nil, mockErr
-				},
+			findAllIdsFunc: func(context.Context) ([]int32, error) {
+				return nil, mockErr
 			},
 			want:      nil,
 			expectErr: mockErr,
 		},
 		{
 			name: "Failure find by ids",
-			mock: &mockLgtmImageRepository{
-				FakeFindAllIds: func(context.Context) ([]int32, error) {
-					return createFindAllIdsResponse(domain.FetchLgtmImageCount), nil
-				},
-				FakeFindByIds: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
-					return nil, mockErr
-				},
+			findAllIdsFunc: func(context.Context) ([]int32, error) {
+				return createFindAllIdsResponse(domain.FetchLgtmImageCount), nil
+			},
+			findByIdsFunc: func(context.Context, []int32) ([]domain.LgtmImageObject, error) {
+				return nil, mockErr
 			},
 			want:      nil,
 			expectErr: mockErr,
@@ -160,7 +134,10 @@ func TestExtractRandomImages(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mock := tt.mock
+			mock := &domain.LgtmImageRepositoryMock{
+				FindAllIdsFunc: tt.findAllIdsFunc,
+				FindByIdsFunc:  tt.findByIdsFunc,
+			}
 			u := NewUseCase(mock, cdnDomain)
 
 			ctx := context.Background()
@@ -226,27 +203,23 @@ func TestRetrieveRecentlyCreatedImages(t *testing.T) {
 	var want = createLgtmImages(findRecentlyCreatedResponse)
 
 	cases := []struct {
-		name      string
-		mock      *mockLgtmImageRepository
-		want      []domain.LgtmImage
-		expectErr error
+		name                    string
+		findRecentlyCreatedFunc func(contextMoqParam context.Context, n int) ([]domain.LgtmImageObject, error)
+		want                    []domain.LgtmImage
+		expectErr               error
 	}{
 		{
 			name: "Success create LGTM image",
-			mock: &mockLgtmImageRepository{
-				FakeFindRecentlyCreated: func(context.Context, int) ([]domain.LgtmImageObject, error) {
-					return findRecentlyCreatedResponse, nil
-				},
+			findRecentlyCreatedFunc: func(context.Context, int) ([]domain.LgtmImageObject, error) {
+				return findRecentlyCreatedResponse, nil
 			},
 			want:      want,
 			expectErr: nil,
 		},
 		{
 			name: "Failure find recently created images",
-			mock: &mockLgtmImageRepository{
-				FakeFindRecentlyCreated: func(context.Context, int) ([]domain.LgtmImageObject, error) {
-					return nil, mockErr
-				},
+			findRecentlyCreatedFunc: func(context.Context, int) ([]domain.LgtmImageObject, error) {
+				return nil, mockErr
 			},
 			want:      nil,
 			expectErr: mockErr,
@@ -258,7 +231,9 @@ func TestRetrieveRecentlyCreatedImages(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			mock := tt.mock
+			mock := &domain.LgtmImageRepositoryMock{
+				FindRecentlyCreatedFunc: tt.findRecentlyCreatedFunc,
+			}
 			u := NewUseCase(mock, cdnDomain)
 
 			ctx := context.Background()
