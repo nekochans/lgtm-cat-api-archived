@@ -59,6 +59,7 @@ export DB_NAME=local_lgtm_cat
 
 ### テスト
 
+#### BD 接続
 一部のテストでDBに接続するテストをしています。
 
 DBに接続できないとエラーとなるので、テストの実行前に下記の設定を行ってください。
@@ -70,6 +71,15 @@ https://github.com/nekochans/lgtm-cat-migration
 - 下記のコマンドで、Docker 上でテストを実行
   - `make test-build` # build が必要な場合のみこちらを利用
   - `make test`
+
+#### mock の自動生成
+mock の自動生成ツール [matryer/moq](https://github.com/matryer/moq) を利用しています。
+
+lgtm-cat-api-dev コンテナ上で下記のようなコマンドを実行することで、mockが自動生成されます。コマンドの詳細は moq のドキュメントを参照。
+
+```
+moq -out domain/lgtm_image_repository_test.moq.go ./domain LgtmImageRepository
+```
 
 ### デプロイ
 ローカルからデプロイする場合、下記のコマンドを実行してください。
