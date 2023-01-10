@@ -39,24 +39,18 @@ func TestCreateLgtmImage(t *testing.T) {
 	cases := []struct {
 		name           string
 		imageExtension string
-		s3Mock         *mockS3Repository
-		idGenMock      *mockUniqueIdGenerator
+		uploadFunc     func(contextMoqParam context.Context, uploadS3param *domain.UploadS3param) error
+		generateFunc   func() (string, error)
 		want           *domain.UploadedLgtmImage
 		expectErr      error
 	}{
 		{
 			name:           "Success create LGTM image",
 			imageExtension: ".png",
-			s3Mock: &mockS3Repository{
-				FakeUpload: func(context.Context, *domain.UploadS3param) error {
-					return nil
-				},
+			uploadFunc: func(contextMoqParam context.Context, uploadS3param *domain.UploadS3param) error {
+				return nil
 			},
-			idGenMock: &mockUniqueIdGenerator{
-				FakeGenerate: func() (string, error) {
-					return imageName, nil
-				},
-			},
+			generateFunc: func() (string, error) { return imageName, nil },
 			want: &domain.UploadedLgtmImage{
 				Url: "https://" + cdnDomain + "/" + prefix + imageName + ".webp",
 			},
@@ -65,50 +59,32 @@ func TestCreateLgtmImage(t *testing.T) {
 		{
 			name:           "Failure unexpect image extension",
 			imageExtension: ".webp",
-			s3Mock: &mockS3Repository{
-				FakeUpload: func(context.Context, *domain.UploadS3param) error {
-					return nil
-				},
+			uploadFunc: func(contextMoqParam context.Context, uploadS3param *domain.UploadS3param) error {
+				return nil
 			},
-			idGenMock: &mockUniqueIdGenerator{
-				FakeGenerate: func() (string, error) {
-					return imageName, nil
-				},
-			},
-			want:      nil,
-			expectErr: domain.ErrInvalidImageExtension,
+			generateFunc: func() (string, error) { return imageName, nil },
+			want:         nil,
+			expectErr:    domain.ErrInvalidImageExtension,
 		},
 		{
 			name:           "Failure generate image name",
 			imageExtension: ".png",
-			s3Mock: &mockS3Repository{
-				FakeUpload: func(context.Context, *domain.UploadS3param) error {
-					return nil
-				},
+			uploadFunc: func(contextMoqParam context.Context, uploadS3param *domain.UploadS3param) error {
+				return nil
 			},
-			idGenMock: &mockUniqueIdGenerator{
-				FakeGenerate: func() (string, error) {
-					return "", mockErr
-				},
-			},
-			want:      nil,
-			expectErr: mockErr,
+			generateFunc: func() (string, error) { return "", mockErr },
+			want:         nil,
+			expectErr:    mockErr,
 		},
 		{
 			name:           "Failure upload image to s3",
 			imageExtension: ".png",
-			s3Mock: &mockS3Repository{
-				FakeUpload: func(context.Context, *domain.UploadS3param) error {
-					return mockErr
-				},
+			uploadFunc: func(contextMoqParam context.Context, uploadS3param *domain.UploadS3param) error {
+				return mockErr
 			},
-			idGenMock: &mockUniqueIdGenerator{
-				FakeGenerate: func() (string, error) {
-					return imageName, nil
-				},
-			},
-			want:      nil,
-			expectErr: mockErr,
+			generateFunc: func() (string, error) { return imageName, nil },
+			want:         nil,
+			expectErr:    mockErr,
 		},
 	}
 
@@ -116,8 +92,12 @@ func TestCreateLgtmImage(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			s3Mock := tt.s3Mock
-			idGenMock := tt.idGenMock
+			s3Mock := &domain.S3RepositoryMock{
+				UploadFunc: tt.uploadFunc,
+			}
+			idGenMock := &domain.UniqueIdGeneratorMock{
+				GenerateFunc: tt.generateFunc,
+			}
 
 			u := &UseCase{
 				repository:  s3Mock,
