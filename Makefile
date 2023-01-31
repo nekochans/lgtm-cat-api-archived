@@ -12,19 +12,19 @@ format:
 
 .PHONY: run-normal-build
 run-normal-build:
-	AIR_CONF=air.normal.toml docker compose up dev --build -d
+	AIR_CONF=air.normal.toml docker compose up dev nginx --build -d
 
 .PHONY: run-normal
 run-normal:
-	AIR_CONF=air.normal.toml docker compose up dev -d
+	AIR_CONF=air.normal.toml docker compose up dev nginx -d
 
 .PHONY: run-debug-build
 run-debug-build:
-	AIR_CONF=air.debug.toml docker compose up dev -d
+	AIR_CONF=air.debug.toml docker compose up dev nginx -d
 
 .PHONY: run-debug
 run-debug:
-	AIR_CONF=air.debug.toml docker compose up dev --build -d
+	AIR_CONF=air.debug.toml docker compose up dev nginx --build -d
 
 .PHONY: test-build
 test-build:

@@ -1,6 +1,20 @@
 version: '3.8'
 
 services:
+  nginx:
+    container_name: lgtm-cat-api-nginx
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - 3331:3331
+    environment:
+      - BACKEND_HOST=lgtm-cat-api-dev
+      - PORT=3331
+    depends_on:
+      - dev
+    networks:
+      - lgtm-cat
   dev:
     container_name: lgtm-cat-api-dev
     build:
