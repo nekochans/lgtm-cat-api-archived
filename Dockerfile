@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.3
 
-FROM golang:1.19-alpine3.15 as base
+FROM golang:1.19-bullseye as base
 LABEL maintainer="https://github.com/nekochans"
 WORKDIR /go/app
 ENV CGO_ENABLED=0
@@ -14,8 +14,8 @@ ARG MOQ_VERSION=v0.3.0
 RUN --mount=target=. \
   --mount=type=cache,target=/root/.cache/go-build \
   set -eux && \
-  apk update && \
-  apk add --no-cache git && \
+  apt-get update && \
+  apt-get install git && \
   go install github.com/cosmtrek/air@${AIR_VERSION} && \
   go install github.com/go-delve/delve/cmd/dlv@${DLV_VERSION} && \
   go install github.com/matryer/moq@${MOQ_VERSION}
@@ -23,3 +23,18 @@ RUN --mount=target=. \
 FROM base AS unit-test
 RUN --mount=target=. \
   --mount=type=cache,target=/root/.cache/go-build
+
+FROM base AS build
+RUN --mount=target=. \
+  --mount=type=cache,target=/root/.cache/go-build \
+  GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o /out/lgtm-cat-api ./cmd/local/main.go
+
+FROM debian:bullseye-slim as production
+COPY --from=build /out/lgtm-cat-api /
+RUN set -x && \
+  apt-get update &&  \
+  apt-get install -y ca-certificates && \
+  useradd go && \
+  chown -R go:go /lgtm-cat-api
+USER go
+CMD ["./lgtm-cat-api"]
