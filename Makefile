@@ -20,11 +20,11 @@ run-normal:
 
 .PHONY: run-debug-build
 run-debug-build:
-	AIR_CONF=air.debug.toml docker compose up dev nginx -d
+	AIR_CONF=air.debug.toml docker compose up dev nginx --build -d
 
 .PHONY: run-debug
 run-debug:
-	AIR_CONF=air.debug.toml docker compose up dev nginx --build -d
+	AIR_CONF=air.debug.toml docker compose up dev nginx -d
 
 .PHONY: test-build
 test-build:
