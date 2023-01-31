@@ -9,7 +9,7 @@ services:
     ports:
       - 3331:3331
     environment:
-      - BACKEND_HOST=lgtm-cat-api-dev
+      - BACKEND_HOST=dev
       - PORT=3331
     depends_on:
       - dev

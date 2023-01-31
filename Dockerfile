@@ -27,7 +27,7 @@ RUN --mount=target=. \
 FROM base AS build
 RUN --mount=target=. \
   --mount=type=cache,target=/root/.cache/go-build \
-  GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o /out/lgtm-cat-api ./cmd/local/main.go
+  GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o /out/lgtm-cat-api .
 
 FROM debian:bullseye-slim as production
 COPY --from=build /out/lgtm-cat-api /
