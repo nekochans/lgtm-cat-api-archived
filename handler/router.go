@@ -25,6 +25,8 @@ func NewRouter(uploader *manager.Uploader, q *db.Queries, logger infrastructure.
 	extractRandomImagesUseCase := fetchlgtmimages.NewUseCase(lgtmImageRepository, lgtmImagesCdnDomain)
 	extractRandomImagesHandler := NewFetchImagesHandler(extractRandomImagesUseCase)
 
+	healthCheckHandler := NewHealthCheckHandler()
+
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
@@ -36,6 +38,7 @@ func NewRouter(uploader *manager.Uploader, q *db.Queries, logger infrastructure.
 	r.Use(withLogger(logger))
 	r.Use(recovery)
 
+	r.Get("/health-checks", healthCheckHandler.Check)
 	r.Post("/lgtm-images", createLgtmImageHandler.Create)
 	r.Get("/lgtm-images", extractRandomImagesHandler.Extract)
 	r.Get("/lgtm-images/recently-created", extractRandomImagesHandler.RetrieveRecentlyCreated)
