@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
-	"github.com/nekochans/lgtm-cat-api/infrastructure"
 	"github.com/nekochans/lgtm-cat-api/usecase/createltgmimage"
 )
 
@@ -42,7 +41,6 @@ func (h *createLgtmImageHandler) Create(w http.ResponseWriter, r *http.Request) 
 			RenderErrorResponse(w, UnprocessableEntity)
 		default:
 			logger.Error(err)
-			infrastructure.ReportError(r.Context(), err)
 			RenderErrorResponse(w, InternalServerError)
 		}
 
