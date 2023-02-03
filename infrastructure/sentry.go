@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -34,4 +35,10 @@ func NewSentryHttp() *sentryhttp.Handler {
 	return sentryhttp.New(sentryhttp.Options{
 		Repanic: true,
 	})
+}
+
+func ReportError(ctx context.Context, err error) {
+	if hub := sentry.GetHubFromContext(ctx); hub != nil {
+		hub.CaptureException(err)
+	}
 }

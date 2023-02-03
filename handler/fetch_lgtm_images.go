@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/nekochans/lgtm-cat-api/domain"
+	"github.com/nekochans/lgtm-cat-api/infrastructure"
 	"github.com/nekochans/lgtm-cat-api/usecase/fetchlgtmimages"
 )
 
@@ -33,6 +34,7 @@ func (h *fetchImagesHandler) Extract(w http.ResponseWriter, r *http.Request) {
 	lgtmImages, err := h.useCase.ExtractRandomImages(r.Context())
 	if err != nil {
 		logger.Error(err)
+		infrastructure.ReportError(r.Context(), err)
 		RenderErrorResponse(w, InternalServerError)
 		return
 	}
@@ -49,6 +51,7 @@ func (h *fetchImagesHandler) RetrieveRecentlyCreated(w http.ResponseWriter, r *h
 	lgtmImages, err := h.useCase.RetrieveRecentlyCreatedImages(r.Context())
 	if err != nil {
 		logger.Error(err)
+		infrastructure.ReportError(r.Context(), err)
 		RenderErrorResponse(w, InternalServerError)
 		return
 	}
