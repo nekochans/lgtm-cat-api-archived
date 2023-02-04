@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	_ "github.com/go-sql-driver/mysql"
+
 	db "github.com/nekochans/lgtm-cat-api/db/sqlc"
 	"github.com/nekochans/lgtm-cat-api/handler"
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
@@ -23,6 +24,10 @@ func main() {
 	logger = infrastructure.NewLogger()
 
 	r := handler.NewRouter(uploader, queries, logger)
+
+	if err := infrastructure.InitSentry(); err != nil {
+		logger.Error(err)
+	}
 
 	const timeoutSecond = 10
 	server := &http.Server{

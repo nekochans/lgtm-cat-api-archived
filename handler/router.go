@@ -37,6 +37,8 @@ func NewRouter(uploader *manager.Uploader, q *db.Queries, logger infrastructure.
 	}))
 	r.Use(withLogger(logger))
 	r.Use(recovery)
+	r.Use(infrastructure.NewSentryHttp().Handle)
+	r.Use(sentryRequestId)
 
 	r.Get("/health-checks", healthCheckHandler.Check)
 	r.Post("/lgtm-images", createLgtmImageHandler.Create)
