@@ -8,6 +8,7 @@ var (
 	BadRequest          = newBadRequest("Bad Request")
 	UnprocessableEntity = newUnprocessableEntity("Unprocessable Entity")
 	InternalServerError = newInternalServerError("Internal Server Error")
+	Unauthorized        = newUnauthorized("Unauthorized")
 )
 
 type apiError struct {
@@ -34,5 +35,10 @@ func newUnprocessableEntity(msg string) *apiError {
 
 func newInternalServerError(msg string) *apiError {
 	e := newError(msg, http.StatusInternalServerError)
+	return e
+}
+
+func newUnauthorized(msg string) *apiError {
+	e := newError(msg, http.StatusUnauthorized)
 	return e
 }
