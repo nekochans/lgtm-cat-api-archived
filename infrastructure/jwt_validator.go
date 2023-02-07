@@ -26,9 +26,15 @@ func NewJwtValidator() (validator JwtValidator, err error) {
 		constants.GetCognitoUserPoolId(),
 	)
 
-	c := jwk.NewCache(context.Background())
+	ctx := context.Background()
+	c := jwk.NewCache(ctx)
 
 	if err := c.Register(jwksUrl); err != nil {
+		return JwtValidator{}, err
+	}
+
+	_, err = c.Refresh(ctx, jwksUrl)
+	if err != nil {
 		return JwtValidator{}, err
 	}
 
