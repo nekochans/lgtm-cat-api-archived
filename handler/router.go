@@ -45,12 +45,15 @@ func NewRouter(
 	r.Use(recovery)
 	r.Use(infrastructure.NewSentryHttp().Handle)
 	r.Use(sentryRequestId)
-	r.Use(NewBearerAuthorizer(validator).Authorize)
 
 	r.Get("/health-checks", healthCheckHandler.Check)
-	r.Post("/lgtm-images", createLgtmImageHandler.Create)
-	r.Get("/lgtm-images", extractRandomImagesHandler.Extract)
-	r.Get("/lgtm-images/recently-created", extractRandomImagesHandler.RetrieveRecentlyCreated)
+
+	r.Route("/", func(r chi.Router) {
+		r.Use(NewBearerAuthorizer(validator).Authorize)
+		r.Post("/lgtm-images", createLgtmImageHandler.Create)
+		r.Get("/lgtm-images", extractRandomImagesHandler.Extract)
+		r.Get("/lgtm-images/recently-created", extractRandomImagesHandler.RetrieveRecentlyCreated)
+	})
 
 	return r
 }
