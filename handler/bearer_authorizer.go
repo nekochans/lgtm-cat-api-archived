@@ -4,12 +4,19 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+
+	"github.com/nekochans/lgtm-cat-api/derrors"
+	"github.com/nekochans/lgtm-cat-api/domain"
 )
 
-type BearerAuthorizer struct{}
+type BearerAuthorizer struct {
+	JwtValidator domain.JwtValidator
+}
 
-func NewBearerAuthorizer() *BearerAuthorizer {
-	return &BearerAuthorizer{}
+func NewBearerAuthorizer(validator domain.JwtValidator) *BearerAuthorizer {
+	return &BearerAuthorizer{
+		JwtValidator: validator,
+	}
 }
 
 func (a *BearerAuthorizer) Authorize(next http.Handler) http.Handler {
@@ -17,7 +24,14 @@ func (a *BearerAuthorizer) Authorize(next http.Handler) http.Handler {
 		logger := extractLogger(r.Context())
 
 		key := r.Header.Get("Authorization")
-		_, err := a.extractAccessToken(key)
+		accessToken, err := a.extractAccessToken(key)
+		if err != nil {
+			logger.Error(err)
+			RenderErrorResponse(w, Unauthorized)
+
+			return
+		}
+		err = a.JwtValidator.Validate(accessToken)
 		if err != nil {
 			logger.Error(err)
 			RenderErrorResponse(w, Unauthorized)
@@ -30,7 +44,9 @@ func (a *BearerAuthorizer) Authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func (a *BearerAuthorizer) extractAccessToken(auth string) (string, error) {
+func (a *BearerAuthorizer) extractAccessToken(auth string) (accessToken string, err error) {
+	defer derrors.Wrap(&err, "BearerAuthorizer.extractAccessToken()")
+
 	bearerLen := 7
 	if len(auth) < bearerLen {
 		return "", errors.New("invalid bearer authorization header")

@@ -8,12 +8,18 @@ import (
 	"github.com/go-chi/cors"
 
 	db "github.com/nekochans/lgtm-cat-api/db/sqlc"
+	"github.com/nekochans/lgtm-cat-api/domain"
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
 	"github.com/nekochans/lgtm-cat-api/usecase/createltgmimage"
 	"github.com/nekochans/lgtm-cat-api/usecase/fetchlgtmimages"
 )
 
-func NewRouter(uploader *manager.Uploader, q *db.Queries, logger infrastructure.Logger) *chi.Mux {
+func NewRouter(
+	uploader *manager.Uploader,
+	q *db.Queries,
+	logger infrastructure.Logger,
+	validator domain.JwtValidator,
+) *chi.Mux {
 	uploadS3Bucket := os.Getenv("UPLOAD_S3_BUCKET_NAME")
 	lgtmImagesCdnDomain := os.Getenv("LGTM_IMAGES_CDN_DOMAIN")
 
@@ -39,7 +45,7 @@ func NewRouter(uploader *manager.Uploader, q *db.Queries, logger infrastructure.
 	r.Use(recovery)
 	r.Use(infrastructure.NewSentryHttp().Handle)
 	r.Use(sentryRequestId)
-	r.Use(NewBearerAuthorizer().Authorize)
+	r.Use(NewBearerAuthorizer(validator).Authorize)
 
 	r.Get("/health-checks", healthCheckHandler.Check)
 	r.Post("/lgtm-images", createLgtmImageHandler.Create)
