@@ -28,7 +28,7 @@ func NewJwtValidator() (validator JwtValidator, err error) {
 
 	c := jwk.NewCache(context.Background())
 
-	if err := c.Register(""); err != nil {
+	if err := c.Register(jwksUrl); err != nil {
 		return JwtValidator{}, err
 	}
 
