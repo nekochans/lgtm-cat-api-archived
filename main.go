@@ -22,8 +22,12 @@ func main() {
 	queries = infrastructure.NewSqlcQueries()
 	uploader = infrastructure.NewUploader()
 	logger = infrastructure.NewLogger()
+	validator, err := infrastructure.NewJwtValidator()
+	if err != nil {
+		logger.Error(err)
+	}
 
-	r := handler.NewRouter(uploader, queries, logger)
+	r := handler.NewRouter(uploader, queries, logger, validator)
 
 	if err := infrastructure.InitSentry(); err != nil {
 		logger.Error(err)
@@ -36,7 +40,7 @@ func main() {
 		ReadHeaderTimeout: timeoutSecond * time.Second,
 		ErrorLog:          log.New(&logForwarder{l: logger}, "", 0),
 	}
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		logger.Error(err)
 		return
