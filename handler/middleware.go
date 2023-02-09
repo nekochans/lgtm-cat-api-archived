@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/getsentry/sentry-go"
+
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
 )
 
@@ -51,6 +53,21 @@ func recovery(next http.Handler) http.Handler {
 				RenderErrorResponse(w, InternalServerError)
 			}
 		}()
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
+
+func sentryRequestId(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		requestId := r.Header.Get("X-Request-Id")
+		ctx := r.Context()
+
+		if hub := sentry.GetHubFromContext(ctx); hub != nil {
+			hub.Scope().SetTag("x_request_id", requestId)
+		}
+
+		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)

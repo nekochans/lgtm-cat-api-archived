@@ -44,6 +44,8 @@ export DB_HOSTNAME=mysql:3306
 export DB_USERNAME=local_lgtm_cat_user
 export DB_PASSWORD=password
 export DB_NAME=local_lgtm_cat
+
+export COGNITO_USER_POOL_ID=STG環境のcognito user poolのID
 ```
 
 ### Docker を起動

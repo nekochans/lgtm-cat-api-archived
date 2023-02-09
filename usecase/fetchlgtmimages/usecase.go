@@ -7,6 +7,7 @@ import (
 
 	"github.com/nekochans/lgtm-cat-api/derrors"
 	"github.com/nekochans/lgtm-cat-api/domain"
+	"github.com/nekochans/lgtm-cat-api/infrastructure"
 )
 
 type UseCase struct {
@@ -55,6 +56,7 @@ func (u *UseCase) ExtractRandomImages(ctx context.Context) (randomImages []domai
 		return nil, err
 	}
 	if len(ids) < domain.FetchLgtmImageCount {
+		infrastructure.ReportError(ctx, domain.ErrRecordCount)
 		return nil, domain.ErrRecordCount
 	}
 

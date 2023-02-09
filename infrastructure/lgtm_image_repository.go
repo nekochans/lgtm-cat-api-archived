@@ -27,6 +27,7 @@ func (r *lgtmImageRepository) FindAllIds(c context.Context) (allIds []int32, err
 
 	ids, err := r.db.ListLgtmImageIds(ctx)
 	if err != nil {
+		ReportError(ctx, err)
 		return nil, err
 	}
 
@@ -56,6 +57,7 @@ func (r *lgtmImageRepository) FindByIds(
 
 	rows, err := r.db.ListLgtmImages(ctx, listLgtmImagesParams)
 	if err != nil {
+		ReportError(ctx, err)
 		return nil, err
 	}
 
@@ -78,6 +80,7 @@ func (r *lgtmImageRepository) FindRecentlyCreated(
 
 	rows, err := r.db.ListRecentlyCreatedLgtmImages(ctx, int32(count))
 	if err != nil {
+		ReportError(ctx, err)
 		return nil, err
 	}
 
