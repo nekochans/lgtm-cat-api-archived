@@ -1,13 +1,13 @@
-name: cd-staging
+name: cd-production
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    tags:
+      - v[0-9].[0-9]+.[0-9]+
 
 jobs:
   build:
-    name: Build and Deploy to Staging
+    name: Build and Deploy to Production
     timeout-minutes: 10
     runs-on: ubuntu-latest
 
@@ -33,7 +33,7 @@ jobs:
         id: build-image-nginx
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: stg-lgtm-cat-api-nginx
+          ECR_REPOSITORY: prod-lgtm-cat-api-nginx
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build --platform amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f docker/nginx/Dockerfile .
@@ -45,7 +45,7 @@ jobs:
         id: build-image-app
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: stg-lgtm-cat-api-app
+          ECR_REPOSITORY: prod-lgtm-cat-api-app
           IMAGE_TAG: ${{ github.sha }}
           DOCKER_BUILDKIT: "1"
         run: |
@@ -56,7 +56,7 @@ jobs:
 
       - name: Fetch task-definition.json
         env:
-          ECS_TASK_DEFINITION: stg-lgtm-cat-api
+          ECS_TASK_DEFINITION: prod-lgtm-cat-api
         run: |
           aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION | jq '.taskDefinition | with_entries(select(( .key != "taskDefinitionArn") and (.key != "revision") and (.key != "status") and (.key != "requiresAttributes") and (.key != "compatibilities")))' > task-definition.json
 
@@ -81,5 +81,5 @@ jobs:
         with:
           task-definition: ${{ steps.task-def-app.outputs.task-definition }}
           wait-for-service-stability: true
-          service: stg-lgtm-cat-api
-          cluster: stg-lgtm-cat-api
+          service: prod-lgtm-cat-api
+          cluster: prod-lgtm-cat-api
