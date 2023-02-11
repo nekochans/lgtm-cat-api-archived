@@ -1,0 +1,85 @@
+name: cd-staging
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Deploy
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: "ap-northeast-1"
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR for nginx
+        id: build-image-nginx
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: stg-lgtm-cat-api-nginx
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build --platform amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f docker/nginx/Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Build, tag, and push image to Amazon ECR for app
+        id: build-image-app
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: stg-lgtm-cat-api-app
+          IMAGE_TAG: ${{ github.sha }}
+          DOCKER_BUILDKIT: "1"
+        run: |
+          docker build --target production -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Fetch task-definition.json
+        env:
+          ECS_TASK_DEFINITION: stg-lgtm-cat-api
+        run: |
+          aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION | jq '.taskDefinition | with_entries(select(( .key != "taskDefinitionArn") and (.key != "revision") and (.key != "status") and (.key != "requiresAttributes") and (.key != "compatibilities")))' > task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition for nginx
+        id: task-def-nginx
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: nginx
+          image: ${{ steps.build-image-nginx.outputs.image }}
+
+      - name: Fill in the new image ID in the Amazon ECS task definition for app
+        id: task-def-app
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-nginx.outputs.task-definition }}
+          container-name: app
+          image: ${{ steps.build-image-app.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-app.outputs.task-definition }}
+          wait-for-service-stability: true
+          service: stg-lgtm-cat-api
+          cluster: stg-lgtm-cat-api
