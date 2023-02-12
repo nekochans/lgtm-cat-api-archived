@@ -14,9 +14,12 @@ import (
 	"github.com/nekochans/lgtm-cat-api/infrastructure"
 )
 
-var uploader *manager.Uploader
-var queries *db.Queries
-var logger infrastructure.Logger
+var (
+	uploader *manager.Uploader
+	queries  *db.Queries
+	logger   infrastructure.Logger
+	release  string
+)
 
 func main() {
 	queries = infrastructure.NewSqlcQueries()
@@ -29,7 +32,7 @@ func main() {
 
 	r := handler.NewRouter(uploader, queries, logger, validator)
 
-	if err := infrastructure.InitSentry(); err != nil {
+	if err := infrastructure.InitSentry(release); err != nil {
 		logger.Error(err)
 	}
 

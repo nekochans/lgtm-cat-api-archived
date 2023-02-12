@@ -25,9 +25,10 @@ RUN --mount=target=. \
   --mount=type=cache,target=/root/.cache/go-build
 
 FROM base AS build
+ARG COMMIT_HASH
 RUN --mount=target=. \
   --mount=type=cache,target=/root/.cache/go-build \
-  GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o /out/lgtm-cat-api .
+  GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-X main.release=${COMMIT_HASH} -s -w" -o /out/lgtm-cat-api .
 
 FROM debian:bullseye-slim as production
 COPY --from=build /out/lgtm-cat-api /
