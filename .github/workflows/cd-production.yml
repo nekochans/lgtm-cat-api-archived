@@ -83,3 +83,14 @@ jobs:
           wait-for-service-stability: true
           service: prod-lgtm-cat-api
           cluster: prod-lgtm-cat-api
+
+      - name: Create Sentry release
+        if: success()
+        uses: getsentry/action-release@v1.2.1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: "lgtm-cat-api"
+        with:
+          environment: prod
+          version: ${{ github.ref }}
