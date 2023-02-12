@@ -13,12 +13,13 @@ import (
 
 const flushTimeSeconds = 2
 
-func InitSentry() (err error) {
-	defer derrors.Wrap(&err, "InitSentry")
+func InitSentry(release string) (err error) {
+	defer derrors.Wrap(&err, "InitSentry(%s)", release)
 
 	env := os.Getenv("ENV")
 	err = sentry.Init(sentry.ClientOptions{
 		Environment:      env,
+		Release:          release,
 		AttachStacktrace: true,
 		TracesSampleRate: 1.0,
 	})

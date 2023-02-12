@@ -36,7 +36,7 @@ jobs:
           ECR_REPOSITORY: stg-lgtm-cat-api-nginx
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --platform amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f docker/nginx/Dockerfile .
+          docker build --platform amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f docker/nginx/Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
@@ -49,7 +49,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           DOCKER_BUILDKIT: "1"
         run: |
-          docker build --target production -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f Dockerfile .
+          docker build --target production --build-arg COMMIT_HASH="$GITHUB_SHA" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
@@ -83,3 +83,14 @@ jobs:
           wait-for-service-stability: true
           service: stg-lgtm-cat-api
           cluster: stg-lgtm-cat-api
+
+      - name: Create Sentry release
+        if: success()
+        uses: getsentry/action-release@v1.2.1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: "lgtm-cat-api"
+        with:
+          environment: stg
+          version: ${{ github.sha }}
