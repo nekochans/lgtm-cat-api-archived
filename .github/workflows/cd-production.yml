@@ -93,4 +93,4 @@ jobs:
           SENTRY_PROJECT: "lgtm-cat-api"
         with:
           environment: prod
-          version: ${{ github.ref }}
+          version: ${{ github.sha }}
