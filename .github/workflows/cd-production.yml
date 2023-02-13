@@ -6,6 +6,7 @@ on:
       - v[0-9].[0-9]+.[0-9]+
 
 env:
+  ENV: prod
   ECR_REPOSITORY_NGINX: prod-lgtm-cat-api-nginx
   ECR_REPOSITORY_APP: prod-lgtm-cat-api--app
 
@@ -81,7 +82,7 @@ jobs:
 
       - name: Fetch task-definition.json
         env:
-          ECS_TASK_DEFINITION: prod-lgtm-cat-api
+          ECS_TASK_DEFINITION: ${{ env.ENV }}-lgtm-cat-api
         run: |
           aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION | jq '.taskDefinition | with_entries(select(( .key != "taskDefinitionArn") and (.key != "revision") and (.key != "status") and (.key != "requiresAttributes") and (.key != "compatibilities")))' > task-definition.json
 
@@ -106,8 +107,8 @@ jobs:
         with:
           task-definition: ${{ steps.task-def-app.outputs.task-definition }}
           wait-for-service-stability: true
-          service: prod-lgtm-cat-api
-          cluster: prod-lgtm-cat-api
+          service: ${{ env.ENV }}-lgtm-cat-api
+          cluster: ${{ env.ENV }}-lgtm-cat-api
 
       - name: Create Sentry release
         if: success()
@@ -117,5 +118,5 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: "lgtm-cat-api"
         with:
-          environment: prod
+          environment: ${{ env.ENV }}
           version: ${{ github.sha }}
