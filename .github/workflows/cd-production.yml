@@ -8,7 +8,7 @@ on:
 env:
   ENV: prod
   ECR_REPOSITORY_NGINX: prod-lgtm-cat-api-nginx
-  ECR_REPOSITORY_APP: prod-lgtm-cat-api--app
+  ECR_REPOSITORY_APP: prod-lgtm-cat-api-app
 
 jobs:
   build:
