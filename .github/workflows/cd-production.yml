@@ -79,11 +79,10 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      - name: Fetch task-definition.json
+      - name: Subsitute environment variables in the Amazon ECS task definition
+        run: envsubst < task-definition-${{ env.ENV }}.json  > task-definition.json
         env:
-          ECS_TASK_DEFINITION: ${{ env.ENV }}-lgtm-cat-api
-        run: |
-          aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION | jq '.taskDefinition | with_entries(select(( .key != "taskDefinitionArn") and (.key != "revision") and (.key != "status") and (.key != "requiresAttributes") and (.key != "compatibilities")))' > task-definition.json
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: Fill in the new image ID in the Amazon ECS task definition for nginx
         id: task-def-nginx
